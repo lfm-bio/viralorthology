@@ -1,0 +1,19 @@
+import os
+from Bio import SeqIO
+
+def merge(db):
+    new_db = open(db, 'a')
+    first_round_db_name = f'first-round-{db}'
+    try:
+        first_round_db = open(first_round_db_name)
+    except:
+        return False #there werent filtered genomes
+    for line in first_round_db:
+        new_db.write(line)
+    new_db.close()
+    first_round_db.close()
+    os.remove(first_round_db_name)
+
+def main():
+    merge('protDB.db')
+    merge('protDB_OF.db')
