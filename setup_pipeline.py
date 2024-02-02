@@ -29,7 +29,7 @@ os.system('sudo chmod a+rx /usr/local/bin/viralorthology')
 os.system('sh -c "$(wget -q https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh -O -)"')
 
 #Blast
-os.system('sudo apt-get install ncbi-blast+')
+os.system('sudo apt-get install ncbi-blast+ -y')
 
 #ORFfinder [https://www.ncbi.nlm.nih.gov/orffinder/]
 os.system('wget https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/ORFfinder/linux-i64/ORFfinder.gz')
