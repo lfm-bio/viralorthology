@@ -1,33 +1,33 @@
 #!/usr/bin/python3
-import modules.split_data as split_data
-import modules.orfinder as orfinder
-import modules.proteinortho as proteinortho
-import modules.make_protDB as make_protDB
-import modules.search_paralogs as paralogs
-import modules.blastp as blastp
-import modules.HMM as HMM
-import modules.clean_protDB as cleanDB
-import modules.rename_groups as rename_groups
-import modules.filter_genomes as filter_genomes
-import modules.HMM_clean as HMM_clean
-import modules.HMMVSHMM as HMMvsHMM
-import modules.merge_groups as merge_groups
-import modules.prepare_second_round as prepare_second_round
-import modules.prots_per_group as prots_per_group
-import modules.merge_protDBs as merge_protDBs
-import modules.try_to_merge as try_to_merge
-import modules.synteny as synteny
-import modules.check_filtered_genomes as check_filtered_genomes
-import modules.update_db as update_db
-import modules.download_seqs as download_seqs
-import modules.check_dependencies as check_dependencies
-import modules.kimura as kimura
-from modules.misc import make_nseq_report
-from datetime import timedelta
-from datetime import datetime
 import os
 import sys
 import time
+from datetime import timedelta
+from datetime import datetime
+from modules.split_data import main as split_data
+from modules.orfinder import main as orfinder
+from modules.proteinortho import main as proteinortho
+from modules.make_protDB import main as make_protDB
+from modules.search_paralogs import main as paralogs
+from modules.blastp import main as blastp
+from modules.HMM import main as HMM
+from modules.clean_protDB import main as cleanDB
+from modules.rename_groups import main as rename_groups
+from modules.filter_genomes import main as filter_genomes
+from modules.HMM_clean import main as HMM_clean
+from modules.HMMVSHMM import main as HMMvsHMM
+from modules.merge_groups import main as merge_groups
+from modules.prepare_second_round import main as prepare_second_round
+from modules.prots_per_group import main as prots_per_group
+from modules.merge_protDBs import main as merge_protDBs
+from modules.try_to_merge import main as try_to_merge
+from modules.synteny import main as synteny
+from modules.check_filtered_genomes import main as check_filtered_genomes
+from modules.update_db import main as update_db
+from modules.download_seqs import main as download_seqs
+from modules.check_dependencies import main as check_dependencies
+from modules.kimura import main as kimura
+from modules.misc import make_nseq_report
 
 def split_params(usr_input):
     '''
@@ -57,7 +57,7 @@ def get_params(software, params):
         return False
 
 def write_log(time, date, params):
-    log = open('log.txt', 'w')
+    log = open('log.txt', 'w', encoding="uft-8")
     log.write(f'{date}\nElapsed time: {time}\n')
     log.write('Parameters:\n')
     for soft in params:
@@ -82,31 +82,31 @@ def check_params(proteinortho, blastp, orfinder, hmmsearch):
     if not ok:
         print('Some prohibited parameter was changed')
         print('visit github for more information')
-        quit()
+        sys.exit(1)
 
 def main():
     start = time.time()
 
     usr_input = sys.argv[1:]
     if '-prots_per_group' in usr_input:
-        prots_per_group.main()
-        quit()
+        prots_per_group()
+        sys.exit(0)
     elif '-try_to_merge_groups' in usr_input:
         fasta_list = usr_input[1:]
-        try_to_merge.main(fasta_list)
-        quit()
+        try_to_merge(fasta_list)
+        sys.exit(0)
     elif '-update_db' in usr_input:
-        update_db.main()
-        quit()
+        update_db()
+        sys.exit(0)
     elif '-download_seqs' in usr_input:
-        download_seqs.main()
-        quit()
+        download_seqs()
+        sys.exit(0)
     elif '-check_dependencies' in usr_input:
-        check_dependencies.main()
-        quit()
+        check_dependencies()
+        sys.exit(0)
     elif '-kimura' in usr_input:
-        kimura.main()
-        quit()
+        kimura()
+        sys.exit(0)
 
     params_all = split_params(usr_input)
     params_po = get_params('proteinortho', params_all)
@@ -119,47 +119,47 @@ def main():
     first_round = True
     while True:
         if first_round:
-            split_data.main()
-            filter_genomes.main()
+            split_data()
+            filter_genomes()
 
-        orfinder.main(params_orfinder)
-        paralogs.main()
-        make_protDB.main()
+        orfinder(params_orfinder)
+        paralogs()
+        make_protDB()
 
         if first_round:
-            proteinortho.main(params_po)
-            rename_groups.main()
-            merge_groups.main()
+            proteinortho(params_po)
+            rename_groups()
+            merge_groups()
 
-            HMM_clean.main()
-            HMMvsHMM.main()
+            HMM_clean()
+            HMMvsHMM()
 
-            cleanDB.main()
+            cleanDB()
             make_nseq_report('1-ProteinOrtho')
 
-        HMM.main(params_HMMsearch)
+        HMM(params_HMMsearch)
         make_nseq_report('2-HMM')
 
-        blastp.main('protDB.db', params_blastp)
-        blastp.main('protDB_OF.db', params_blastp)
+        blastp('protDB.db', params_blastp)
+        blastp('protDB_OF.db', params_blastp)
         make_nseq_report('3-Blastp')
 
-        HMM.main(params_HMMsearch, True)
+        HMM(params_HMMsearch, True)
         make_nseq_report('4-HMM')
 
-        rename_groups.main()
-        merge_groups.main()
+        rename_groups()
+        merge_groups()
 
         if first_round:
-            if not check_filtered_genomes.main(): #no filtered genomes
+            if not check_filtered_genomes(): #no filtered genomes
                 break
-            prepare_second_round.main()
+            prepare_second_round()
             first_round = False
         else:
             break
 
-    merge_protDBs.main()
-    synteny.main()
+    merge_protDBs()
+    synteny()
 
     os.system('rm -r genomes')
     os.system('rm -r orfeomes')
