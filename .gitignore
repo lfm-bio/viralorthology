@@ -1,0 +1,5 @@
+genomes.fasta
+proteomes.fasta
+orfeomes.fasta
+ids.txt
+**__pycache__
