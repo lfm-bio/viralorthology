@@ -14,7 +14,7 @@ os.system('sudo apt-get install gzip -y')
 os.system('sudo apt-get install unzip -y')
 
 #pipeline
-os.system('wget https://github.com/l-f-m/viralorthology/archive/refs/heads/main.zip')
+os.system('wget https://github.com/lfm-bio/viralorthology/archive/refs/heads/main.zip')
 os.system('unzip main.zip')
 os.chdir('viralorthology-main')
 os.system('sudo mkdir /usr/local/bin/vorthology')
