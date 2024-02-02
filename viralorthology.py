@@ -57,7 +57,7 @@ def get_params(software, params):
         return False
 
 def write_log(time, date, params):
-    log = open('log.txt', 'w', encoding="uft-8")
+    log = open('log.txt', 'w', encoding="utf-8")
     log.write(f'{date}\nElapsed time: {time}\n')
     log.write('Parameters:\n')
     for soft in params:

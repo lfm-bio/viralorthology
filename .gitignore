@@ -2,4 +2,14 @@ genomes.fasta
 proteomes.fasta
 orfeomes.fasta
 ids.txt
+
 **__pycache__
+
+log.txt
+protDB.db
+orfeomes_OF.fasta
+
+synteny.txt
+
+orthology_groups
+paralogs
