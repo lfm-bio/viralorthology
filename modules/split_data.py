@@ -1,8 +1,8 @@
 '''
 This script divides the initial multifastas into individual fastas and gives the right description format to every seq
 '''
-from Bio import SeqIO
 import os
+from Bio import SeqIO
 
 def genomes(multifasta):
     try:

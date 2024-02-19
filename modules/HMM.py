@@ -4,8 +4,8 @@ only adds the proteins from genomes that dont already have a protein in that ort
 deletes the added seqs from protDB
 if CHECK, the scrips only works with the fastas that added sequences from the first step
 '''
-from Bio import SeqIO
 import os
+from Bio import SeqIO
 from modules.misc import clean_protDB
 from modules.misc import get_genomes_fasta
 from modules.misc import get_n_genomes

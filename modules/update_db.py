@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+import os
+import sys
+from Bio import SeqIO
 import modules.split_data as split_data
 import modules.orfinder as orfinder
 import modules.make_protDB as make_protDB
@@ -8,9 +11,6 @@ import modules.HMM as HMM
 import modules.synteny as synteny
 from modules.misc import make_nseq_report
 from modules.misc import combine_fastas
-import os
-import sys
-from Bio import SeqIO
 
 def split_params(params):
     for n, w  in enumerate(params):

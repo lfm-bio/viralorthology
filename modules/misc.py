@@ -1,7 +1,7 @@
-from Bio import SeqIO
 import os
 import multiprocessing
 import time
+from Bio import SeqIO
 
 def combine_fastas(fasta_list, new_fasta_name, format = 'fasta-2line'):
     bioseqs = []

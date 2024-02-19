@@ -1,13 +1,12 @@
+import os
+from Bio import SeqIO
 from modules.misc import get_file_list
 from modules.misc import get_n_genomes
 from modules.misc import get_nseqs
 from modules.misc import get_bioseqs
 from modules.misc import get_proteinid_genomeid
-from modules.misc import get_file_list
 from modules.misc import fasta_to_fasta2line
 from modules.misc import delete_files
-from Bio import SeqIO
-import os
 
 def get_coregenes():
     '''

@@ -1,5 +1,4 @@
 import os
-import sys
 from modules.misc import combine_fastas
 
 def check_compatibility(fasta_list):

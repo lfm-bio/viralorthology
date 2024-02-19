@@ -1,6 +1,6 @@
+import os
 from modules.misc import get_file_list
 from modules.misc import get_genomes_fasta
-import os
 
 def get_groups():
     '''

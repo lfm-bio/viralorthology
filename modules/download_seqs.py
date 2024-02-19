@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-from modules.misc import combine_fastas
-from tqdm import tqdm
 import os
+from tqdm import tqdm
+from modules.misc import combine_fastas
 
 def get_ids():
     ids_file = open('ids.txt')

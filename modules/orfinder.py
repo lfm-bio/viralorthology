@@ -3,7 +3,6 @@ This script launches orffinder with every genome (DNA output), sorts the seqs by
 translates them to protein and cleans the output (removes proteins that are annotated)
 '''
 import os
-import sys
 from Bio import SeqIO
 from tqdm import tqdm
 from modules.misc import get_file_list

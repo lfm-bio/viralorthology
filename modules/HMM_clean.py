@@ -2,13 +2,13 @@
 This script removes the proteins that are not found using the HMM made with the orthology group
 if the final groups has less than 2 seqs, the group is deleted
 '''
+import os
+from Bio import SeqIO
 from modules.HMM import get_hits_hmmsearch
 from modules.HMM import align_build_search
 from modules.misc import delete_tmp_files
 from modules.misc import get_file_list
 from modules.misc import get_ordered_files
-import os
-from Bio import SeqIO
 
 def remake_group(group, hits):
     '''

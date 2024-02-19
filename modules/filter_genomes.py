@@ -32,7 +32,6 @@ def run_blast(f1, f2):
     os.system(f"blastn -query {f1} -db {f2} -out test -outfmt '7 delim=@ qcovs pident'")
 
 def filter_genomes():
-    filtered = {}
     fastas = get_file_list()
     print('\nFiltering genomes')
     for n, f1 in enumerate(fastas):

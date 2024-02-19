@@ -1,9 +1,9 @@
 '''
 renames the ortology groups going from bigger to smaller
 '''
+import os
 from modules.misc import get_file_list
 from modules.misc import get_ordered_files
-import os
 
 def tmp_names():
     '''

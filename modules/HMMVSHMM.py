@@ -75,7 +75,6 @@ def combine_groups(compatible_groups):
 	'''
 	IN: list withs lists ([[fasta1, fasta2, fasta3], [fasta10, fasta12]])
 	'''
-	msa_to_delete = []
 	for group in compatible_groups:
 		genomes = []
 		group = [fasta.replace('.hhm', '.fasta') for fasta in group]

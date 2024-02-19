@@ -1,6 +1,6 @@
+import os
 from modules.misc import get_file_list
 from modules.misc import get_ordered_files
-import os
 
 def get_anotations(old_group):
     anotations = {}

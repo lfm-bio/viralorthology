@@ -1,3 +1,5 @@
+import os
+from Bio import SeqIO
 from modules.misc import clean_protDB
 from modules.misc import get_nseqs
 from modules.misc import get_n_genomes
@@ -10,10 +12,6 @@ from modules.misc import get_file_list
 from modules.misc import add_bioseq_to_fasta
 from modules.misc import check_ortology_group
 from modules.misc import delete_tmp_files
-import os
-import sys
-from Bio import SeqIO
-from tqdm import tqdm
 
 def make_db_protsInGroup():
     '''

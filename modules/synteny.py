@@ -1,7 +1,7 @@
 import os
+import copy
 import statistics
 from modules.misc import get_file_list
-import copy
 
 def get_mid_pos(line):
     '''
@@ -151,7 +151,7 @@ def get_synteny(genes_in_order, genes_in_order_OF):
     print_synteny(conserved_windows, genes_in_order_OF)
 
 def synteny():
-    genes_in_order, genes_in_order_OF = get_genes_in_order() 
+    genes_in_order, genes_in_order_OF = get_genes_in_order()
     get_synteny(genes_in_order, genes_in_order_OF)
 
 def main():

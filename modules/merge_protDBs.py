@@ -1,5 +1,4 @@
 import os
-from Bio import SeqIO
 
 def merge(db):
     new_db = open(db, 'a')
