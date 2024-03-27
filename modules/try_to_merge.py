@@ -4,7 +4,7 @@ from modules.misc import combine_fastas
 def check_compatibility(fasta_list):
     genomes = []
     for fasta in fasta_list:
-        fasta = open(fasta)
+        fasta = open(fasta, encoding='utf-8')
         for line in fasta:
             if line.startswith('>'):
                 genome = line.strip().split()[1]

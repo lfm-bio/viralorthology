@@ -5,7 +5,7 @@ from tqdm import tqdm
 from modules.misc import combine_fastas
 
 def get_ids():
-    ids_file = open('ids.txt')
+    ids_file = open('ids.txt', encoding='utf-8')
     ids = []
     for line in ids_file:
         ids.append(line.strip())
@@ -35,7 +35,7 @@ def make_mulfitastas():
     combine_fastas(proteomes, 'proteomes.fasta', 'fasta')
     combine_fastas(orfeomes, 'orfeomes.fasta', 'fasta')
 
-def main(params = ''):
+def main():
     ids = get_ids()
     download_fastas(ids)
     make_mulfitastas()

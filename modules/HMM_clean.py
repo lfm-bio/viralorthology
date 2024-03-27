@@ -15,7 +15,7 @@ def remake_group(group, hits):
     OUT: True if the group has been modified (-> delete .muscle)
     else False: we will use the same .muscle in HMMvsHMM
     '''
-    tmp_file = open('temp', 'w')
+    tmp_file = open('temp', 'w', encoding='utf-8')
     n_seqs = 0
     delete_muscle = False
     for seq in SeqIO.parse(group, 'fasta'):

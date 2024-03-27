@@ -3,7 +3,7 @@ from modules.misc import get_file_list
 
 def get_anotations(fasta):
     anotations = []
-    fasta_op = open(fasta)
+    fasta_op = open(fasta, encoding='utf-8')
     for line in fasta_op:
         if line.startswith('>'):
             anotation = line[line.find('[protein=')+9:line.find(']', line.find('[protein=')+9)]
@@ -14,7 +14,7 @@ def get_anotations(fasta):
     return anotations
 
 def check():
-    output = open('../check_hypothetical-proteins.txt', 'w')
+    output = open('../check_hypothetical-proteins.txt', 'w', encoding='utf-8')
     output.write(f'{"ortology_group":30s} hypothetical_group\n')
     fastas = get_file_list()
     hyphos = [fasta for fasta in fastas if fasta.startswith('hypothetical-protein')]

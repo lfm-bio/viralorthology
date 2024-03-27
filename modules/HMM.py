@@ -23,7 +23,7 @@ def get_hits_hmmsearch(hmmsearch):
     dict[genome] = gene
     '''
     genes = {}
-    hmmsearch_report = open(hmmsearch)
+    hmmsearch_report = open(hmmsearch, encoding='utf-8')
     read = False
     for line in hmmsearch_report:
         if line.strip().startswith('E-value  score  bias'):
@@ -61,7 +61,7 @@ def add_new_genes(fasta, new_genes):
     '''
     adds newly found genes to the ortology group
     '''
-    fasta = open(fasta, 'a')
+    fasta = open(fasta, 'a', encoding='utf-8')
     for gene in SeqIO.parse('../protDB.db', 'fasta'):
         if gene.id in new_genes:
             fasta.write(gene.format('fasta-2line'))
@@ -81,14 +81,14 @@ def check_added_seqs(fasta):
     '''
     OUT: True if seqs were added since last HMM
     '''
-    n_seqs_file = open('../n_seqs_groups.csv')
+    n_seqs_file = open('../n_seqs_groups.csv', encoding='utf-8')
     run_hmm = False
     for line in n_seqs_file:
         line = line.strip().split(',')
         if line[0] == fasta and line[1] == '2-HMM':
             first_hmm_n_seqs = int(line[2])
             continue
-        elif line[0] == fasta and line[1] == '3-Blastp':
+        if line[0] == fasta and line[1] == '3-Blastp':
             if int(line[2]) > first_hmm_n_seqs:
                 run_hmm = True
             break

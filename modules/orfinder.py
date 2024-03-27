@@ -45,7 +45,7 @@ def edit_orfeomes():
     n = 0
     for orfeome in orfeomes:
         tmp_name = orfeome + '_tmp'
-        output = open(tmp_name, 'w')
+        output = open(tmp_name, 'w', encoding='utf-8')
         for seq in SeqIO.parse(orfeome, 'fasta'):
             n += 1
             ID = get_ID(seq, n)
@@ -62,7 +62,7 @@ def translate():
     orfeomes = get_file_list('.OForf')
     for orfeome in orfeomes:
         prot_fasta = orfeome.replace('.OForf', '.OFprot')
-        output = open(prot_fasta, 'w')
+        output = open(prot_fasta, 'w', encoding='utf-8')
         for seq in SeqIO.parse(orfeome, 'fasta'):
             output.write(f'>{seq.description}\n{seq.seq.translate(stop_symbol="")}\n')
         output.close()
@@ -79,7 +79,7 @@ def delete_seqs(OFprots_to_remove):
     of_files = get_file_list('.OFprot')
     for xfile in of_files:
         tmp_name = xfile + '_tmp'
-        output = open(tmp_name, 'w')
+        output = open(tmp_name, 'w', encoding='utf-8')
         for seq in SeqIO.parse(xfile, 'fasta'):
             if seq.id not in OFprots_to_remove:
                 output.write(seq.format('fasta-2line'))
@@ -91,7 +91,7 @@ def clean_OFfiles():
     '''
     removes from OF output prots that are already annotated (in, ==, out)
     '''
-    discarted = open('discarted.OF', 'w')
+    discarted = open('discarted.OF', 'w', encoding='utf-8')
     print('Cleaning ORFfinder output')
     OFprots_to_remove = []
     of_files = get_file_list('.OFprot')
@@ -108,7 +108,7 @@ def clean_OFfiles():
 
 def make_protDB_ingroup():
     fastas = get_file_list()
-    protDB_ingroup = open('protDB_ingroup.fasta', 'w')
+    protDB_ingroup = open('protDB_ingroup.fasta', 'w', encoding='utf-8')
     for group in fastas:
         for seq in SeqIO.parse(group, 'fasta'):
             protDB_ingroup.write(seq.format('fasta-2line'))
@@ -116,7 +116,7 @@ def make_protDB_ingroup():
     makeblastdb_prot('protDB_ingroup.fasta')
 
 def make_OF_db():
-    OF_db = open('../orfeomes_OF.fasta', 'a')
+    OF_db = open('../orfeomes_OF.fasta', 'a', encoding='utf-8')
     OF_orfs = get_file_list('.OForf')
     for OFfile in OF_orfs:
         for seq in SeqIO.parse(OFfile, 'fasta'):

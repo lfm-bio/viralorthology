@@ -9,8 +9,7 @@ def check_compatibility(fastas):
         genomes += get_genomes_fasta(fasta)
     if len(genomes) == len(set(genomes)):
         return True
-    else:
-        return False
+    return False
 
 def ask_user(fastas):
     while True:

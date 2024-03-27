@@ -13,7 +13,7 @@ def makeblastdb():
             quit()
 
 def are_similar():
-    result = open('test')
+    result = open('test', encoding='utf-8')
     similar = False
     for line in result:
         if '# 0 hits found' in line:

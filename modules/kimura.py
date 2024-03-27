@@ -74,7 +74,7 @@ def join_fastas():
             else:
                 megaprots[seq.id] += str(seq.seq)
     delete_files(fastas)
-    finalfasta = open('final.fasta', 'w')
+    finalfasta = open('final.fasta', 'w', encoding='utf-8')
     for genomeID in megaprots:
         finalfasta.write(f'>{genomeID}\n{megaprots[genomeID]}\n')
     finalfasta.close()

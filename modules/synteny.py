@@ -31,10 +31,10 @@ def get_genes(fasta, genes_no_order):
     '''
     no_order = copy.deepcopy(genes_no_order)
     gene = fasta.replace('.fasta', '')
-    op_file = open(fasta)
+    op_file = open(fasta, encoding='utf-8')
     for line in op_file:
         if line.startswith('>'):
-            if fasta == '../protDB.db' or fasta == '../protDB_OF.db':
+            if fasta in ['../protDB.db', '../protDB_OF.db']:
                 gene = line[1:].split()[0]
             genome = line.split()[1]
             mid_pos = get_mid_pos(line)
@@ -104,7 +104,7 @@ def print_synteny(conserved_windows, genes_in_order):
     '''
     writes synteny.txt with the script output
     '''
-    output = open('../synteny.txt', 'a')
+    output = open('../synteny.txt', 'a', encoding='utf-8')
     ortho_groups = get_file_list()
     ortho_groups = [fasta.replace('.fasta', '') for fasta in ortho_groups]
     for window in conserved_windows:
@@ -130,7 +130,7 @@ def print_synteny(conserved_windows, genes_in_order):
     output.close()
 
 def count_windows(windows_per_genome):
-    output = open('../synteny.txt', 'w')
+    output = open('../synteny.txt', 'w', encoding='utf-8')
     output.write('conservation synteny_window\n')
     windows = []
     for genome in windows_per_genome:

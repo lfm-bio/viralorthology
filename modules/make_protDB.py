@@ -6,7 +6,7 @@ from modules.misc import get_ordered_files
 def makeDB(file_ext, db_name):
     proteomes = get_file_list(file_ext)
     proteomes = get_ordered_files(proteomes)
-    output = open(f'../{db_name}', 'w')
+    output = open(f'../{db_name}', 'w', encoding='utf-8')
     for proteome in proteomes:
         for seq in SeqIO.parse(proteome, 'fasta'):
             output.write(seq.format('fasta-2line'))

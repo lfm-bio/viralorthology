@@ -31,7 +31,7 @@ def align_buildhmm():
 def get_hmmvshmm_score(g1, g2):
 	report = f'{g1}-{g2}'
 	os.system(f'hhalign -i {g1} -t {g2} -o {report} -glob')
-	report_op = open(report)
+	report_op = open(report, encoding='utf-8')
 	score = 0
 	for line in report_op:
 		if line.strip().startswith('Probab='):

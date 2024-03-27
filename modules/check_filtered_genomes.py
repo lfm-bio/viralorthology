@@ -6,8 +6,7 @@ def check_filtered():
     files = [xfile for xfile in os.listdir(os.curdir)]
     if not files:
         return False
-    else:
-        return True
+    return True
 
 def main():
     os.chdir('genomes')
@@ -16,5 +15,4 @@ def main():
 
     if not filtered:
         return False
-    else:
-        return True
+    return True

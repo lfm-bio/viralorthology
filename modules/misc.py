@@ -15,7 +15,7 @@ def delete_files(file_list):
         os.remove(xfile)
 
 def write_error_log(stage, file):
-    error_log = open('../errors.log', 'a')
+    error_log = open('../errors.log', 'a', encoding='utf-8')
     error_log.write(f'{stage} - {file}\n')
     error_log.close()
 
@@ -44,7 +44,7 @@ def check_ortology_group(query_genome, fasta): # this is ugly
         return True
 
 def add_bioseq_to_fasta(bioseq, fasta):
-    fasta = open(fasta, 'a')
+    fasta = open(fasta, 'a', encoding='utf-8')
     fasta.write(bioseq.format('fasta-2line'))
     fasta.close()
 
@@ -64,7 +64,7 @@ def get_blastp_hits():
     '''
     read = False
     hits = []
-    results = open('blastp.results')
+    results = open('blastp.results', encoding='utf-8')
     for line in results:
         if line.find('No hits found') != -1: #no hit
             break
@@ -141,7 +141,7 @@ def clean_protDB(prots_to_remove, protDB_path):
     removes genes added to a ortology group from protDB
     '''
     tmp_name = protDB_path + '_tmp'
-    new_protDB = open(tmp_name, 'w')
+    new_protDB = open(tmp_name, 'w', encoding='utf-8')
 
     for gene in SeqIO.parse(protDB_path, 'fasta'):
         if gene.id not in prots_to_remove:
@@ -155,7 +155,7 @@ def get_nseqs(fasta):
     '''
     OUT: number of seqs in fasta file
     '''
-    fasta = open(fasta)
+    fasta = open(fasta, encoding='utf-8')
     n = 0
     for line in fasta:
         if line.startswith('>'):
@@ -168,7 +168,7 @@ def get_proteinid_genomeid(fasta):
     OUT: [(protID, genomeID), (protID, genomeID), ...]
     '''
     ids = []
-    fasta = open(fasta)
+    fasta = open(fasta, encoding='utf-8')
     for line in fasta:
         if line.startswith('>'):
             line = line[1:].split()
@@ -181,7 +181,7 @@ def get_protein_ids(fasta):
     '''
     OUT: list with the id of every protein in that fasta
     '''
-    fasta = open(fasta)
+    fasta = open(fasta, encoding='utf-8')
     ids = []
     for line in fasta:
         if line.startswith('>'):
@@ -207,7 +207,7 @@ def get_genomes_fasta(fasta):
     '''
     OUT: list with the IDs of the genomes which have a protein in the group
     '''
-    fasta = open(fasta)
+    fasta = open(fasta, encoding='utf-8')
     genomes_fasta = []
     for line in fasta:
         if line.startswith('>'):
@@ -238,7 +238,7 @@ def make_nseq_report(stage):
         write_header = True
     else:
         write_header = False
-    output = open(output_path, 'a')
+    output = open(output_path, 'a', encoding='utf-8')
     if write_header:
         output.write('file,stage,n_seqs\n')
 
@@ -251,7 +251,7 @@ def make_nseq_report(stage):
     os.chdir('..')
 
 def fasta_to_fasta2line(fasta):
-    tmp = open('tmp', 'w')
+    tmp = open('tmp', 'w', encoding='utf-8')
     for seq in SeqIO.parse(fasta, 'fasta'):
         tmp.write(seq.format('fasta-2line'))
     tmp.close()

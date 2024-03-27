@@ -28,7 +28,7 @@ def get_genomes_per_fasta():
 
 
 def submain(groups):
-    output = open('../groups_per_orthologyGroup.txt', 'w')
+    output = open('../groups_per_orthologyGroup.txt', 'w', encoding='utf-8')
     genomes_per_fasta = get_genomes_per_fasta()
 
     for fasta in genomes_per_fasta:

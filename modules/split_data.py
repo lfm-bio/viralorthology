@@ -12,7 +12,7 @@ def genomes(multifasta):
 
     for seq in SeqIO.parse(multifasta, 'fasta'):
         description = seq.description[seq.description.find(' ')+1:]
-        output = open(f'genomes/{seq.id}.fasta', 'w')
+        output = open(f'genomes/{seq.id}.fasta', 'w', encoding='utf-8')
         output.write(f'>{seq.id} {description}\n{seq.seq}\n')
         output.close()
 
@@ -41,7 +41,7 @@ def prot_orf(multifasta, dtype):
 
     seqs = get_seqs(multifasta) #dict[genome_id] = [biopythonseq1, biopythonseq2,..]
     for genome_id in seqs:
-        output = open(f'{folder}/{genome_id}.fasta', 'w')
+        output = open(f'{folder}/{genome_id}.fasta', 'w', encoding='utf-8')
         for seq in seqs[genome_id]:
             prot_id = seq.id[seq.id.find(dtype)+len(dtype):seq.id.find('.', seq.id.find(dtype))+2]
             description = seq.description[seq.description.find(' ')+1:]

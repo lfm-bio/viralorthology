@@ -4,7 +4,7 @@ def merge(db):
     new_db = open(db, 'a')
     first_round_db_name = f'first-round-{db}'
     try:
-        first_round_db = open(first_round_db_name)
+        first_round_db = open(first_round_db_name, encoding='utf-8')
     except:
         return False #there werent filtered genomes
     for line in first_round_db:
