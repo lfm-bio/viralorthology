@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import time
 from tqdm import tqdm
 from modules.misc import combine_fastas
 
@@ -13,18 +14,23 @@ def get_ids():
 
 def download_fastas(ids):
     print('Downloading files...')
-    for n, seqid in enumerate(tqdm(ids)):
+    for seqid in tqdm(ids):
         while True:
-            os.system(f'efetch -db nuccore -id "{seqid}" -format fasta > new_genome{n}.fasta')
-            os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_aa > new_proteome{n}.fasta') #proteome
-            os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_na > new_orfeome{n}.fasta') #orfeome
-            if os.path.exists(f'new_proteome{n}.fasta') and os.path.exists(f'new_orfeome{n}.fasta') and os.path.exists(f'new_genome{n}.fasta'):
+            err1 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta > {seqid}.genome')
+            time.sleep(1)
+            err2 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_aa > {seqid}.proteome')
+            time.sleep(1)
+            err3 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_na > {seqid}.orfeome')
+            time.sleep(1)
+            err4 = os.system(f'efetch -db nuccore -id "{seqid}" -format full > {seqid}.full') #paper
+            time.sleep(1)
+            if sum([err1, err2, err3, err4]) == 0:
                 break
 
 def make_mulfitastas():
-    genomes = sorted([fasta for fasta in os.listdir(os.curdir) if fasta.startswith('new_genome')])
-    proteomes = sorted([fasta for fasta in os.listdir(os.curdir) if fasta.startswith('new_proteome')])
-    orfeomes = sorted([fasta for fasta in os.listdir(os.curdir) if fasta.startswith('new_orfeome')])
+    genomes = sorted([fasta for fasta in os.listdir(os.curdir) if fasta.endswith('.genome')])
+    proteomes = sorted([fasta for fasta in os.listdir(os.curdir) if fasta.endswith('.proteome')])
+    orfeomes = sorted([fasta for fasta in os.listdir(os.curdir) if fasta.endswith('.orfeome')])
     combine_fastas(genomes, 'genomes.fasta', 'fasta')
     combine_fastas(proteomes, 'proteomes.fasta', 'fasta')
     combine_fastas(orfeomes, 'orfeomes.fasta', 'fasta')
