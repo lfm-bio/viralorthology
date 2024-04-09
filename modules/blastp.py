@@ -21,7 +21,7 @@ def make_db_protsInGroup():
     fastas = get_file_list()
     fastas = get_ordered_files(fastas)
     n_genomes = get_n_genomes()
-    protDB_ingroup = open('protDB_ingroup.fasta', 'w')
+    protDB_ingroup = open('protDB_ingroup.fasta', 'w', encoding='utf-8')
     for group in fastas:
         n_genes = get_nseqs(group)
         if n_genes < n_genomes: #only adds prots from groups that are not full
@@ -72,7 +72,7 @@ def submain(params, protDB):
             hits_all[query_genome][fasta] = (evalue, query)
     prots_to_remove = add_seqs(hits_all)
     clean_protDB(prots_to_remove, protDB)
-    print()#final \n
+    print() # final \n
 
 def main(protDB, params):
     if not params:
