@@ -3,16 +3,12 @@ import os
 def check_filtered():
     os.chdir('filtered')
 
-    files = [xfile for xfile in os.listdir(os.curdir)]
-    if not files:
-        return False
-    return True
+    files = list(os.listdir(os.curdir))
+    return bool(files)
 
 def main():
     os.chdir('genomes')
     filtered = check_filtered()
     os.chdir('../..')
 
-    if not filtered:
-        return False
-    return True
+    return filtered
