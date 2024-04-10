@@ -2,6 +2,7 @@
 This script filters similar genomes, and moves them to another folder (/filtered)
 '''
 import os
+import sys
 from modules.misc import get_file_list
 from modules.misc import delete_tmp_files
 
@@ -10,7 +11,7 @@ def makeblastdb():
     for fasta in fastas:
         err = os.system(f'makeblastdb -dbtype nucl -in {fasta}')
         if err:
-            quit()
+            sys.exit(1)
 
 def are_similar():
     result = open('test', encoding='utf-8')
