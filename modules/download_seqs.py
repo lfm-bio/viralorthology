@@ -17,14 +17,12 @@ def download_fastas(ids):
     for seqid in tqdm(ids):
         while True:
             err1 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta > {seqid}.genome')
-            time.sleep(1)
+            time.sleep(2)
             err2 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_aa > {seqid}.proteome')
-            time.sleep(1)
+            time.sleep(2)
             err3 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_na > {seqid}.orfeome')
-            time.sleep(1)
-            err4 = os.system(f'efetch -db nuccore -id "{seqid}" -format full > {seqid}.full') #paper
-            time.sleep(1)
-            if sum([err1, err2, err3, err4]) == 0:
+            time.sleep(2)
+            if sum([err1, err2, err3]) == 0:
                 break
 
 def make_mulfitastas():
