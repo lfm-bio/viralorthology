@@ -32,13 +32,12 @@ def get_hits_hmmsearch(hmmsearch):
         if read:
             if line.strip().startswith('------ inclusion threshold ------') or line.strip().startswith('Domain annotation for each sequence') or not line.strip():
                 break
-            elif line.strip().startswith('-'):
+            if line.strip().startswith('-'):
                 continue
-            else:
-                line = line.strip().split()
-                gene, genome = line[8], line[9]
-                if genome not in genes: #i get only the best hit per genome
-                    genes[genome] = gene
+            line = line.strip().split()
+            gene, genome = line[8], line[9]
+            if genome not in genes: #i get only the best hit per genome
+                genes[genome] = gene
     hmmsearch_report.close()
     return genes
 
