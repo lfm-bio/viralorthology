@@ -51,9 +51,9 @@ def get_new_genes(fasta, output_hmmsearch):
     genomes_fasta = get_genomes_fasta(fasta)
     new_genes = []
 
-    for genome in hits:
+    for genome, hit in hits.values():
         if genome not in genomes_fasta: #only if theres not another gene from the same genome
-            new_genes.append(hits[genome])
+            new_genes.append(hit)
 
     return new_genes
 
