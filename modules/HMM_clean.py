@@ -1,6 +1,6 @@
 '''
 This script removes the proteins that are not found using the HMM made with the orthology group
-if the final groups has less than 2 seqs, the group is deleted
+if the final group has less than 2 seqs, the group is deleted
 '''
 import os
 from Bio import SeqIO
