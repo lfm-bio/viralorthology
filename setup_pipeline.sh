@@ -24,7 +24,8 @@ sudo ln -s /usr/local/bin/vorthology/viralorthology /usr/local/bin/viralortholog
 sudo chmod a+rx /usr/local/bin/viralorthology
 
 #EntrezDirect 
-wget https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh && bash install-edirect.sh
+sudo apt install ncbi-entrez-direct
+# wget https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh && bash install-edirect.sh
 
 #Blast
 sudo apt-get install ncbi-blast+ -y

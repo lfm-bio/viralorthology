@@ -6,7 +6,8 @@ def install_python_libs():
 
 def check():
     problems = []
-    dependencies = {'muscle': 'muscle -h',
+    dependencies = {
+        'muscle': 'muscle -h',
     'Entrez Direct': 'efetch -h',
     'BLAST': 'blastp -h',
     'ORFfinder': 'ORFfinder -h',
@@ -14,13 +15,15 @@ def check():
     'ProteinOrtho grab proteins': 'po_grab_proteins -h',
     'HMMER': 'hmmbuild -h',
     'hhsuite': 'hhmake -h',
-    'clustalw': 'clustalw -help'}
-    for k in dependencies:
-        err = os.system(f'{dependencies[k]}')
+    'clustalw': 'clustalw -help'
+    }
+    for dependency, command in dependencies.items():
+        print(dependency, command)
+        err = os.system(command)
         if err:
-            if k == 'clustalw' and err == 256:
+            if dependency == 'clustalw' and err == 256:
                 continue
-            problems.append(k)
+            problems.append(dependency)
     return problems
 
 def main():
