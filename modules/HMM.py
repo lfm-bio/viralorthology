@@ -119,11 +119,9 @@ def hmm(check, search_params):
             else: #no new proteins found
                 break
 
-def main(search_params, check = False):
+def main(search_params = '', check = False):
     os.chdir('orthology_groups')
 
-    if not search_params:
-        search_params = ''
     hmm(check, search_params)
     delete_tmp_files(['.hmmbuild', '.hmmsearch', '.muscle'])
 
