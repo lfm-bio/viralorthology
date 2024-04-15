@@ -31,6 +31,13 @@ def delete_tmp_files(extensions):
         for tmp_file in tmp_files:
             os.remove(tmp_file)
 
+def delete_tmp_files_final():
+    os.chdir('orthology_groups')
+    files = [xfile for xfile in os.listdir(os.curdir) if xfile.startswith('protDB')]
+    for xfile in files:
+        os.remove(xfile)
+    os.chdir('..')
+
 def check_ortology_group(query_genome, fasta): # this is ugly
     '''
     checks if the group already has a protein from that genome
@@ -42,9 +49,8 @@ def check_ortology_group(query_genome, fasta): # this is ugly
     return True
 
 def add_bioseq_to_fasta(bioseq, fasta):
-    fasta = open(fasta, 'a', encoding='utf-8')
-    fasta.write(bioseq.format('fasta-2line'))
-    fasta.close()
+    with open(fasta, 'a', encoding='utf-8') as fasta:
+        fasta.write(bioseq.format('fasta-2line'))
 
 def run_blastp(query_fasta, db_fasta, params = ''):
     n_cpus = get_cpu_number()
@@ -204,13 +210,12 @@ def get_genomes_fasta(fasta):
     '''
     OUT: list with the IDs of the genomes which have a protein in the group
     '''
-    fasta = open(fasta, encoding='utf-8')
-    genomes_fasta = []
-    for line in fasta:
-        if line.startswith('>'):
-            genome = line.split()[1]
-            genomes_fasta.append(genome)
-    fasta.close()
+    with open(fasta, encoding='utf-8') as fasta:
+        genomes_fasta = []
+        for line in fasta:
+            if line.startswith('>'):
+                genome = line.split()[1]
+                genomes_fasta.append(genome)
     return genomes_fasta
 
 def get_cpu_number():
@@ -232,22 +237,21 @@ def make_nseq_report(stage):
     output_path = 'n_seqs_groups.csv'
 
     write_header = not bool(os.path.isfile(output_path))
-    output = open(output_path, 'a', encoding='utf-8')
-    if write_header:
-        output.write('file,stage,n_seqs\n')
+    with open(output_path, 'a', encoding='utf-8') as output:
+        if write_header:
+            output.write('file,stage,n_seqs\n')
 
-    os.chdir('orthology_groups')
-    fastas = get_file_list()
-    for fasta in fastas:
-        n_seqs = get_nseqs(fasta)
-        output.write(f'{fasta},{stage},{n_seqs}\n')
-    output.close()
+        os.chdir('orthology_groups')
+        fastas = get_file_list()
+        for fasta in fastas:
+            n_seqs = get_nseqs(fasta)
+            output.write(f'{fasta},{stage},{n_seqs}\n')
     os.chdir('..')
 
 def fasta_to_fasta2line(fasta):
-    tmp = open('tmp', 'w', encoding='utf-8')
-    for seq in SeqIO.parse(fasta, 'fasta'):
-        tmp.write(seq.format('fasta-2line'))
+    with open('tmp', 'w', encoding='utf-8') as tmp:
+        for seq in SeqIO.parse(fasta, 'fasta'):
+            tmp.write(seq.format('fasta-2line'))
     tmp.close()
     os.remove(fasta)
     os.rename('tmp', fasta)

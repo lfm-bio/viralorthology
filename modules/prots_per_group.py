@@ -6,7 +6,7 @@ def get_groups():
     '''
     OUT: dict[group_name] = [genomes]
     '''
-    f_groups = open('groups.csv')
+    f_groups = open('groups.csv', encoding='utf-8')
     groups = {}
     for line in f_groups:
         if line.startswith('>'):

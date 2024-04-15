@@ -27,6 +27,7 @@ from modules.download_seqs import main as download_seqs
 from modules.check_dependencies import main as check_dependencies
 from modules.kimura import main as kimura
 from modules.misc import make_nseq_report
+from modules.misc import delete_tmp_files_final
 
 def split_params(usr_input):
     '''
@@ -154,6 +155,7 @@ def main():
 
     merge_protDBs()
     synteny()
+    delete_tmp_files_final()
 
     os.system('rm -r genomes')
     os.system('rm -r orfeomes')

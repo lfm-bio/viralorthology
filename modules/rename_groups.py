@@ -4,7 +4,7 @@ from modules.misc import get_ordered_files
 
 def get_anotations(old_group):
     anotations = {}
-    fasta = open(old_group)
+    fasta = open(old_group, encoding='utf-8')
     for line in fasta:
         if line.startswith('>'):
             if '[protein=' in line:
@@ -21,10 +21,8 @@ def get_anotations(old_group):
     if anotations:
         if anotations[0][1] == 'hypothetical-protein' and len(anotations) > 1:
             return anotations[1][1]
-        else:
-            return anotations[0][1]
-    else:
-        return 'hypothetical-protein'
+        return anotations[0][1]
+    return 'hypothetical-protein'
 
 def rename_files(new_names):
     for new_name in new_names:

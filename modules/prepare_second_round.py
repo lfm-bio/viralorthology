@@ -2,7 +2,7 @@ import os
 
 def move_files():
     os.chdir('filtered')
-    files = [xfile for xfile in os.listdir(os.curdir)]
+    files = list(os.listdir(os.curdir))
     for xfile in files:
         os.replace(xfile, f'../{xfile}')
     os.chdir('..')

@@ -62,10 +62,9 @@ def translate():
     orfeomes = get_file_list('.OForf')
     for orfeome in orfeomes:
         prot_fasta = orfeome.replace('.OForf', '.OFprot')
-        output = open(prot_fasta, 'w', encoding='utf-8')
-        for seq in SeqIO.parse(orfeome, 'fasta'):
-            output.write(f'>{seq.description}\n{seq.seq.translate(stop_symbol="")}\n')
-        output.close()
+        with open(prot_fasta, 'w', encoding='utf-8') as output:
+            for seq in SeqIO.parse(orfeome, 'fasta'):
+                output.write(f'>{seq.description}\n{seq.seq.translate(stop_symbol="")}\n')
 
 def move_files():
     files = get_file_list('.OForf')
@@ -116,12 +115,11 @@ def make_protDB_ingroup():
     makeblastdb_prot('protDB_ingroup.fasta')
 
 def make_OF_db():
-    OF_db = open('../orfeomes_OF.fasta', 'a', encoding='utf-8')
-    OF_orfs = get_file_list('.OForf')
-    for OFfile in OF_orfs:
-        for seq in SeqIO.parse(OFfile, 'fasta'):
-            OF_db.write(seq.format('fasta-2line'))
-    OF_db.close()
+    with open('../orfeomes_OF.fasta', 'a', encoding='utf-8') as OF_db:
+        OF_orfs = get_file_list('.OForf')
+        for OFfile in OF_orfs:
+            for seq in SeqIO.parse(OFfile, 'fasta'):
+                OF_db.write(seq.format('fasta-2line'))
 
 def main(params = '-ml 90 -s 0'):
     os.chdir('genomes')

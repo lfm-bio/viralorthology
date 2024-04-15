@@ -18,7 +18,7 @@ def ask_user(fastas):
         yes_no = input('Should I merge them? [y/n]: ')
         if yes_no in ['Y', 'y']:
             return True
-        elif yes_no in ['N', 'n']:
+        if yes_no in ['N', 'n']:
             return False
 
 def submain():
