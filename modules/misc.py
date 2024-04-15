@@ -117,7 +117,7 @@ def search_with_hmm(HMM, db_path, params):
     OUT: hmm search report file name
     '''
     search_hmm = HMM.replace('.hmmbuild', '.hmmsearch')
-    os.system(f'hmmsearch -o {search_hmm} {params} {HMM} {db_path}')
+    os.system(f'hmmsearch -o {search_hmm} {"" if not params else params} {HMM} {db_path}')
     return search_hmm
 
 def get_bioseqs(fasta):
