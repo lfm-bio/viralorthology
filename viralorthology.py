@@ -52,7 +52,7 @@ def get_params(software, params):
     if software in params:
         soft_params = (' ').join(params[software])
         return soft_params
-    return False
+    return ''
 
 def write_log(time, date, params):
     log = open('log.txt', 'w', encoding="utf-8")

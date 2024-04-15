@@ -123,10 +123,7 @@ def make_OF_db():
             OF_db.write(seq.format('fasta-2line'))
     OF_db.close()
 
-def main(params):
-    if not params:
-        params = '-ml 90 -s 0'
-
+def main(params = '-ml 90 -s 0'):
     os.chdir('genomes')
 
     launch_orfinder(params)

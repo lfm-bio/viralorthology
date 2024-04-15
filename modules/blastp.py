@@ -74,10 +74,8 @@ def submain(params, protDB):
     clean_protDB(prots_to_remove, protDB)
     print() # final \n
 
-def main(protDB, params):
-    if not params:
-        params = '-word_size 2'
-    elif '-word_size' not in params:
+def main(protDB, params = '-word_size 2'):
+    if '-word_size' not in params:
         params += ' -word_size 2'
 
     os.chdir('orthology_groups')

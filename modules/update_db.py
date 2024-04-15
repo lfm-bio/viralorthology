@@ -88,8 +88,7 @@ def download_proteome_orfeome():
             os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_na > new_orfeome.fasta') #orfeome
             if os.path.exists('new_proteome.fasta') and os.path.exists('new_orfeome.fasta'):
                 break
-            else:
-                print(f'Trying again with {seqid}')
+            print(f'Trying again with {seqid}')
         for seq in SeqIO.parse('new_proteome.fasta', 'fasta'):
             proteomes.write(seq.format('fasta'))
         for seq in SeqIO.parse('new_orfeome.fasta', 'fasta'):
