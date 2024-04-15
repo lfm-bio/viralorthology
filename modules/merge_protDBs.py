@@ -1,7 +1,7 @@
 import os
 
 def merge(db):
-    new_db = open(db, 'a')
+    new_db = open(db, 'a', encoding='utf-8')
     first_round_db_name = f'first-round-{db}'
     try:
         first_round_db = open(first_round_db_name, encoding='utf-8')

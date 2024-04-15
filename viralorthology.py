@@ -20,7 +20,6 @@ from modules.merge_groups import main as merge_groups
 from modules.prepare_second_round import main as prepare_second_round
 from modules.prots_per_group import main as prots_per_group
 from modules.merge_protDBs import main as merge_protDBs
-from modules.try_to_merge import main as try_to_merge
 from modules.synteny import main as synteny
 from modules.check_filtered_genomes import main as check_filtered_genomes
 from modules.update_db import main as update_db
@@ -89,10 +88,6 @@ def main():
     usr_input = sys.argv[1:]
     if '-prots_per_group' in usr_input:
         prots_per_group()
-        sys.exit(0)
-    elif '-try_to_merge_groups' in usr_input:
-        fasta_list = usr_input[1:]
-        try_to_merge(fasta_list)
         sys.exit(0)
     elif '-update_db' in usr_input:
         update_db()

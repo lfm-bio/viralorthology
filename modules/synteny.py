@@ -71,7 +71,7 @@ def get_genes_in_order():
 
     genes_in_order = remove_midpos(genes_in_order)
     genes_in_order_OF = remove_midpos(genes_in_order_OF)
-    
+
     genes_in_order = genes_in_order_OF #NO OF GENES
 
     return genes_in_order, genes_in_order_OF

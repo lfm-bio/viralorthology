@@ -40,13 +40,12 @@ def prot_orf(multifasta, dtype):
         pass
 
     seqs = get_seqs(multifasta) #dict[genome_id] = [biopythonseq1, biopythonseq2,..]
-    for genome_id in seqs:
-        output = open(f'{folder}/{genome_id}.fasta', 'w', encoding='utf-8')
-        for seq in seqs[genome_id]:
-            prot_id = seq.id[seq.id.find(dtype)+len(dtype):seq.id.find('.', seq.id.find(dtype))+2]
-            description = seq.description[seq.description.find(' ')+1:]
-            output.write(f'>{prot_id} {genome_id} {description}\n{seq.seq}\n')
-        output.close()
+    for genome_id, seq_list in seqs.items():
+        with open(f'{folder}/{genome_id}.fasta', 'w', encoding='utf-8') as output:
+            for seq in seq_list:
+                prot_id = seq.id[seq.id.find(dtype)+len(dtype):seq.id.find('.', seq.id.find(dtype))+2]
+                description = seq.description[seq.description.find(' ')+1:]
+                output.write(f'>{prot_id} {genome_id} {description}\n{seq.seq}\n')
 
 def main():
     genomes('genomes.fasta')
