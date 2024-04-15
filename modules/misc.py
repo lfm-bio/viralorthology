@@ -3,21 +3,20 @@ import multiprocessing
 import time
 from Bio import SeqIO
 
-def combine_fastas(fasta_list, new_fasta_name, format = 'fasta-2line'):
+def combine_fastas(fasta_list, new_fasta_name, file_format = 'fasta-2line'):
     bioseqs = []
     for fasta in fasta_list:
         bioseqs += get_bioseqs(fasta)
     delete_files(fasta_list)
-    SeqIO.write(bioseqs, new_fasta_name, format)
+    SeqIO.write(bioseqs, new_fasta_name, format=file_format)
 
 def delete_files(file_list):
     for xfile in file_list:
         os.remove(xfile)
 
 def write_error_log(stage, file):
-    error_log = open('../errors.log', 'a', encoding='utf-8')
-    error_log.write(f'{stage} - {file}\n')
-    error_log.close()
+    with open('../errors.log', 'a', encoding='utf-8') as error_log:
+        error_log.write(f'{stage} - {file}\n')
 
 def get_first_bioseq_fasta(fasta):
     first_seq = list(SeqIO.parse(fasta, 'fasta'))[0]
@@ -40,8 +39,7 @@ def check_ortology_group(query_genome, fasta): # this is ugly
     fasta_genomes = get_genomes_fasta(fasta)
     if query_genome in fasta_genomes:
         return False
-    else:
-        return True
+    return True
 
 def add_bioseq_to_fasta(bioseq, fasta):
     fasta = open(fasta, 'a', encoding='utf-8')
@@ -50,7 +48,7 @@ def add_bioseq_to_fasta(bioseq, fasta):
 
 def run_blastp(query_fasta, db_fasta, params = ''):
     n_cpus = get_cpu_number()
-    err = os.system(f'blastp -query {query_fasta} -db {db_fasta} -out blastp.results -num_threads {n_cpus} {params}') #SALIDA BLASTP CAMBIO 
+    err = os.system(f'blastp -query {query_fasta} -db {db_fasta} -out blastp.results -num_threads {n_cpus} {params}')
     if err:
         write_error_log('blastp', query_fasta)
         print(f'Error with {query_fasta}')
@@ -68,13 +66,13 @@ def get_blastp_hits():
     for line in results:
         if line.find('No hits found') != -1: #no hit
             break
-        elif line.startswith('Sequences producing significant alignments:'):
+        if line.startswith('Sequences producing significant alignments:'):
             read = True
             continue
         if read:
             if not line.strip():
                 continue
-            elif line.startswith('>'):
+            if line.startswith('>'):
                 break
             line = line.strip().split()
             fasta, evalue = line[0], float(line[-1]) #first: protID or fasta, last: evalue
@@ -121,7 +119,7 @@ def search_with_hmm(HMM, db_path, params):
     return search_hmm
 
 def get_bioseqs(fasta):
-    bioseqs = [seq for seq in SeqIO.parse(fasta, 'fasta')]
+    bioseqs = list(SeqIO.parse(fasta, 'fasta'))
     return bioseqs
 
 def sort_bioseqs_b_to_s(bioseqs):
@@ -155,12 +153,11 @@ def get_nseqs(fasta):
     '''
     OUT: number of seqs in fasta file
     '''
-    fasta = open(fasta, encoding='utf-8')
-    n = 0
-    for line in fasta:
-        if line.startswith('>'):
-            n += 1
-    fasta.close()
+    with open(fasta, encoding='utf-8') as fasta:
+        n = 0
+        for line in fasta:
+            if line.startswith('>'):
+                n += 1
     return n
 
 def get_proteinid_genomeid(fasta):
@@ -234,10 +231,7 @@ def get_ordered_files(file_list):
 def make_nseq_report(stage):
     output_path = 'n_seqs_groups.csv'
 
-    if not os.path.isfile(output_path):
-        write_header = True
-    else:
-        write_header = False
+    write_header = not bool(os.path.isfile(output_path))
     output = open(output_path, 'a', encoding='utf-8')
     if write_header:
         output.write('file,stage,n_seqs\n')
