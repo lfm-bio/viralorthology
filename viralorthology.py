@@ -28,11 +28,22 @@ from modules.kimura import main as kimura
 from modules.misc import make_nseq_report
 from modules.misc import delete_tmp_files_final
 
+class Args:
+    def __init__(self):
+        self.proteinortho = ''
+        self.orffinder = ''
+        self.blastp = ''
+        self.HMMsearch = ''
+
+    def __repr__(self):
+        return f'{self.proteinortho} {self.orffinder} {self.blastp} {self.HMMsearch}'
+
 def split_params(usr_input):
     '''
     OUT: params[software] = [params]
     '''
-    args = {}
+    args_dict = {}
+    args = Args()
 
     software_list = [
         '--proteinortho',
@@ -45,17 +56,13 @@ def split_params(usr_input):
     for param in usr_input:
         if param in software_list:
             software = param.strip('-')
-            args[software] = []
+            args_dict[software] = []
             continue
         if software:
-            args[software].append(param)
+            args_dict[software].append(param)
 
-    for software, params in args.items():
-        args[software] = (' ').join(params)
-
-    for software in software_list:
-        if software.strip('-') not in args:
-            args[software.strip('-')] = ''
+    for software, params in args_dict.items():
+        setattr(args, software.strip('-'), (' ').join(params))
 
     return args
 
@@ -77,14 +84,14 @@ def check_params(args):
     checks if the user changed some prohibited parameter
     '''
     ok = True
-    if 'proteinortho' in args:
-        if '--project' in args['proteinortho']:
+    if args.proteinortho:
+        if '--project' in args.proteinortho:
             ok = False
-    if 'blastp' in args:
-        if '-query' in args['blastp'] or '-db' in args['blastp'] or '-out' in args['blastp']:
+    if args.blastp:
+        if '-query' in args.blastp or '-db' in args.blastp or '-out' in args.blastp:
             ok = False
-    if 'orffinder' in args:
-        if '-in' in args['orffinder'] or '-out' in args['orffinder'] or '-outfmt' in args['orffinder']:
+    if args.orffinder:
+        if '-in' in args.orffinder or '-out' in args.orffinder or '-outfmt' in args.orffinder:
             ok = False
     if not ok:
         print('Some prohibited parameter was changed')
@@ -117,6 +124,8 @@ def only_on_first_round(params_po):
     make_nseq_report('1-ProteinOrtho')
 
 def main():
+    print('ARREGLAR WRITE LOG')
+    quit()
     start = time.time()
 
     usr_input = sys.argv[1:]
@@ -132,21 +141,21 @@ def main():
             split_data()
             filter_genomes()
 
-        orfinder(args['orffinder'])
+        orfinder(args.orffinder)
         paralogs()
         make_protDB()
 
         if first_round:
-            only_on_first_round(args['proteinortho'])
+            only_on_first_round(args.proteinortho)
 
-        HMM(args['HMMsearch'])
+        HMM(args.HMMsearch)
         make_nseq_report('2-HMM')
 
-        blastp('protDB.db', args['blastp'])
-        blastp('protDB_OF.db', args['blastp'])
+        blastp('protDB.db', args.blastp)
+        blastp('protDB_OF.db', args.blastp)
         make_nseq_report('3-Blastp')
 
-        HMM(args['HMMsearch'], True)
+        HMM(args.HMMsearch, True)
         make_nseq_report('4-HMM')
 
         rename_groups()
