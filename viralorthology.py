@@ -18,7 +18,6 @@ from modules.HMM_clean import main as HMM_clean
 from modules.HMMVSHMM import main as HMMvsHMM
 from modules.merge_groups import main as merge_groups
 from modules.prepare_second_round import main as prepare_second_round
-from modules.prots_per_group import main as prots_per_group
 from modules.merge_protDBs import main as merge_protDBs
 from modules.synteny import main as synteny
 from modules.check_filtered_genomes import main as check_filtered_genomes
@@ -33,21 +32,32 @@ def split_params(usr_input):
     '''
     OUT: params[software] = [params]
     '''
-    params = {}
+    args = {}
+
+    software_list = [
+        '--proteinortho',
+        '--orffinder',
+        '--blastp',
+        '--HMMsearch'
+        ]
 
     software = False
     for param in usr_input:
-        if param in ['--proteinortho',
-        '--orffinder',
-        '--blastp',
-        '--HMMsearch']:
+        if param in software_list:
             software = param.strip('-')
-            params[software] = []
+            args[software] = []
             continue
         if software:
-            params[software].append(param)
+            args[software].append(param)
 
-    return params
+    for software, params in args.items():
+        args[software] = (' ').join(params)
+
+    for software in software_list:
+        if software.strip('-') not in args:
+            args[software.strip('-')] = ''
+
+    return args
 
 def get_params(software, params):
     if software in params:
@@ -55,60 +65,65 @@ def get_params(software, params):
         return soft_params
     return ''
 
-def write_log(time, date, params):
-    log = open('log.txt', 'w', encoding="utf-8")
-    log.write(f'{date}\nElapsed time: {time}\n')
-    log.write('Parameters:\n')
-    for soft in params:
-        params[soft] = (' ').join(params[soft])
-        log.write(f'{soft}: {params[soft]}\n')
-    log.close()
+def write_log(elapsed_time, date, args):
+    with open('log.txt', 'w', encoding="utf-8") as log:
+        log.write(f'{date}\nElapsed time: {elapsed_time}\n')
+        log.write('Parameters:\n')
+        for software, params in args.items():
+            log.write(f'{software}: {params}\n')
 
-def check_params(proteinortho, blastp, orfinder, hmmsearch):
+def check_params(args):
     '''
     checks if the user changed some prohibited parameter
     '''
     ok = True
-    if proteinortho:
-        if '--project' in proteinortho:
+    if 'proteinortho' in args:
+        if '--project' in args['proteinortho']:
             ok = False
-    if blastp:
-        if '-query' in blastp or '-db' in blastp or '-out' in blastp:
+    if 'blastp' in args:
+        if '-query' in args['blastp'] or '-db' in args['blastp'] or '-out' in args['blastp']:
             ok = False
-    if orfinder:
-        if '-in' in orfinder or '-out' in orfinder or '-outfmt' in orfinder:
+    if 'orffinder' in args:
+        if '-in' in args['orffinder'] or '-out' in args['orffinder'] or '-outfmt' in args['orffinder']:
             ok = False
     if not ok:
         print('Some prohibited parameter was changed')
         print('visit github for more information')
         sys.exit(1)
 
+def check_argv(usr_input):
+    if '-update_db' in usr_input:
+        update_db()
+        sys.exit(0)
+    if '-download_seqs' in usr_input:
+        download_seqs()
+        sys.exit(0)
+    if '-check_dependencies' in usr_input:
+        check_dependencies()
+        sys.exit(0)
+    if '-kimura' in usr_input:
+        kimura()
+        sys.exit(0)
+
+def only_on_first_round(params_po):
+    proteinortho(params_po)
+    rename_groups()
+    merge_groups()
+
+    HMM_clean()
+    HMMvsHMM()
+
+    cleanDB()
+    make_nseq_report('1-ProteinOrtho')
+
 def main():
     start = time.time()
 
     usr_input = sys.argv[1:]
-    if '-prots_per_group' in usr_input:
-        prots_per_group()
-        sys.exit(0)
-    elif '-update_db' in usr_input:
-        update_db()
-        sys.exit(0)
-    elif '-download_seqs' in usr_input:
-        download_seqs()
-        sys.exit(0)
-    elif '-check_dependencies' in usr_input:
-        check_dependencies()
-        sys.exit(0)
-    elif '-kimura' in usr_input:
-        kimura()
-        sys.exit(0)
+    check_argv(usr_input)
 
-    params_all = split_params(usr_input)
-    params_po = get_params('proteinortho', params_all)
-    params_blastp = get_params('blastp', params_all)
-    params_orfinder = get_params('orffinder', params_all)
-    params_HMMsearch = get_params('HMMsearch', params_all)
-    check_params(params_po, params_blastp, params_orfinder, params_HMMsearch)
+    args = split_params(usr_input)
+    check_params(args)
 
     #HERE COMES THE PIPELINE
     first_round = True
@@ -117,29 +132,21 @@ def main():
             split_data()
             filter_genomes()
 
-        orfinder(params_orfinder)
+        orfinder(args['orffinder'])
         paralogs()
         make_protDB()
 
         if first_round:
-            proteinortho(params_po)
-            rename_groups()
-            merge_groups()
+            only_on_first_round(args['proteinortho'])
 
-            HMM_clean()
-            HMMvsHMM()
-
-            cleanDB()
-            make_nseq_report('1-ProteinOrtho')
-
-        HMM(params_HMMsearch)
+        HMM(args['HMMsearch'])
         make_nseq_report('2-HMM')
 
-        blastp('protDB.db', params_blastp)
-        blastp('protDB_OF.db', params_blastp)
+        blastp('protDB.db', args['blastp'])
+        blastp('protDB_OF.db', args['blastp'])
         make_nseq_report('3-Blastp')
 
-        HMM(params_HMMsearch, True)
+        HMM(args['HMMsearch'], True)
         make_nseq_report('4-HMM')
 
         rename_groups()
@@ -169,7 +176,7 @@ def main():
     deltatime = end - start
     deltatime = str(timedelta(seconds=deltatime))
     date = datetime.today().strftime('%Y-%m-%d')
-    write_log(deltatime, date, params_all)
+    write_log(deltatime, date, args)
 
 if __name__ == '__main__':
     main()
