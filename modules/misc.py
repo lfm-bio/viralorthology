@@ -1,7 +1,11 @@
 import os
+import sys
+import time
+from datetime import timedelta, datetime
 import multiprocessing
 from Bio import SeqIO
 from modules import commands
+from modules.Args import Args
 
 def combine_fastas(fasta_list, new_fasta_name, file_format = 'fasta-2line'):
     bioseqs = []
@@ -237,3 +241,68 @@ def fasta_to_fasta2line(fasta):
     tmp.close()
     os.remove(fasta)
     os.rename('tmp', fasta)
+
+def write_log(args, start):
+    end = time.time()
+    elapsed_time = end - start
+    elapsed_time = str(timedelta(seconds=elapsed_time))
+    date = datetime.today().strftime('%Y-%m-%d')
+    with open('log.txt', 'w', encoding="utf-8") as log:
+        log.write(f'{date}\nElapsed time: {elapsed_time}\n')
+        log.write('Parameters:\n')
+        log.write(args.get_all_params())
+
+def get_args():
+    args_dict = {}
+    args = Args()
+
+    software_list = [
+        '--proteinortho',
+        '--orffinder',
+        '--blastp',
+        '--HMMsearch'
+        ]
+
+    software = False
+    for param in sys.argv[1:]:
+        if param in software_list:
+            software = param.strip('-')
+            args_dict[software] = []
+            continue
+        if software:
+            args_dict[software].append(param)
+
+    for software, params in args_dict.items():
+        setattr(args, software.strip('-'), (' ').join(params))
+
+    check_args(args)
+
+    return args
+
+def check_args(args):
+    '''
+    checks if the user changed some prohibited parameter
+    '''
+    ok = True
+    if args.proteinortho:
+        if '--project' in args.proteinortho:
+            ok = False
+    if args.blastp:
+        if '-query' in args.blastp or '-db' in args.blastp or '-out' in args.blastp:
+            ok = False
+    if args.orffinder:
+        if '-in' in args.orffinder or '-out' in args.orffinder or '-outfmt' in args.orffinder:
+            ok = False
+    if not ok:
+        print('Some prohibited parameter was changed')
+        print('visit github for more information')
+        sys.exit(1)
+
+def delete_final_files():
+    os.system('rm -r genomes')
+    os.system('rm -r orfeomes')
+    os.system('rm -r proteomes')
+    os.remove('n_seqs_groups.csv')
+    if os.path.exists('first-round-n_seqs_groups.csv'):
+        os.remove('first-round-n_seqs_groups.csv')
+    os.remove('protDB_OF.db')

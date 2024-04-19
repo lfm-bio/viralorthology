@@ -2,8 +2,6 @@
 import os
 import sys
 import time
-from datetime import timedelta
-from datetime import datetime
 from modules.split_data import main as split_data
 from modules.orfinder import main as orfinder
 from modules.proteinortho import main as proteinortho
@@ -27,50 +25,9 @@ from modules.check_dependencies import main as check_dependencies
 from modules.kimura import main as kimura
 from modules.misc import make_nseq_report
 from modules.misc import delete_tmp_files_final
-
-class Args:
-    def __init__(self):
-        self.proteinortho = ''
-        self.orffinder = ''
-        self.blastp = ''
-        self.HMMsearch = ''
-
-    def get_software_params(self, software_params):
-        return software_params if software_params != '' else 'default'
-
-    def get_all_params(self):
-        return f'proteinortho: {self.get_software_params(self.proteinortho)}\norfinder: {self.get_software_params(self.orffinder)}\nblastp: {self.get_software_params(self.blastp)}\nHMMsearch: {self.get_software_params(self.HMMsearch)}'
-
-    def __repr__(self):
-        return f'{self.proteinortho} {self.orffinder} {self.blastp} {self.HMMsearch}'
-
-def split_params(usr_input):
-    '''
-    OUT: params[software] = [params]
-    '''
-    args_dict = {}
-    args = Args()
-
-    software_list = [
-        '--proteinortho',
-        '--orffinder',
-        '--blastp',
-        '--HMMsearch'
-        ]
-
-    software = False
-    for param in usr_input:
-        if param in software_list:
-            software = param.strip('-')
-            args_dict[software] = []
-            continue
-        if software:
-            args_dict[software].append(param)
-
-    for software, params in args_dict.items():
-        setattr(args, software.strip('-'), (' ').join(params))
-
-    return args
+from modules.misc import get_args
+from modules.misc import delete_final_files
+from modules.misc import write_log
 
 def get_params(software, params):
     if software in params:
@@ -78,55 +35,19 @@ def get_params(software, params):
         return soft_params
     return ''
 
-def write_log(elapsed_time, date, args):
-    with open('log.txt', 'w', encoding="utf-8") as log:
-        log.write(f'{date}\nElapsed time: {elapsed_time}\n')
-        log.write('Parameters:\n')
-        log.write(args.get_all_params())
-
-def check_params(args):
-    '''
-    checks if the user changed some prohibited parameter
-    '''
-    ok = True
-    if args.proteinortho:
-        if '--project' in args.proteinortho:
-            ok = False
-    if args.blastp:
-        if '-query' in args.blastp or '-db' in args.blastp or '-out' in args.blastp:
-            ok = False
-    if args.orffinder:
-        if '-in' in args.orffinder or '-out' in args.orffinder or '-outfmt' in args.orffinder:
-            ok = False
-    if not ok:
-        print('Some prohibited parameter was changed')
-        print('visit github for more information')
-        sys.exit(1)
-
-def check_argv(usr_input):
-    if '-update_db' in usr_input:
+def check_argv():
+    if '-update_db' in sys.argv:
         update_db()
         sys.exit(0)
-    if '-download_seqs' in usr_input:
+    if '-download_seqs' in sys.argv:
         download_seqs()
         sys.exit(0)
-    if '-check_dependencies' in usr_input:
+    if '-check_dependencies' in sys.argv:
         check_dependencies()
         sys.exit(0)
-    if '-kimura' in usr_input:
+    if '-kimura' in sys.argv:
         kimura()
         sys.exit(0)
-
-def only_on_first_round(params_po):
-    proteinortho(params_po)
-    rename_groups()
-    merge_groups()
-
-    HMM_clean()
-    HMMvsHMM()
-
-    cleanDB()
-    make_nseq_report('1-ProteinOrtho')
 
 def check_files():
     # ADD INFO
@@ -140,13 +61,9 @@ def check_files():
 def main():
     start = time.time()
 
-    usr_input = sys.argv[1:]
-    check_argv(usr_input)
-
+    check_argv()
     check_files()
-
-    args = split_params(usr_input)
-    check_params(args)
+    args = get_args()
 
     #HERE COMES THE PIPELINE
     first_round = True
@@ -160,7 +77,13 @@ def main():
         make_protDB()
 
         if first_round:
-            only_on_first_round(args.proteinortho)
+            proteinortho(args.proteinortho)
+            rename_groups()
+            merge_groups()
+            HMM_clean()
+            HMMvsHMM()
+            cleanDB()
+            make_nseq_report('1-ProteinOrtho')
 
         HMM(args.HMMsearch)
         make_nseq_report('2-HMM')
@@ -186,20 +109,8 @@ def main():
     merge_protDBs()
     synteny()
     delete_tmp_files_final()
-
-    os.system('rm -r genomes')
-    os.system('rm -r orfeomes')
-    os.system('rm -r proteomes')
-    os.remove('n_seqs_groups.csv')
-    if os.path.exists('first-round-n_seqs_groups.csv'):
-        os.remove('first-round-n_seqs_groups.csv')
-    os.remove('protDB_OF.db')
-
-    end = time.time()
-    deltatime = end - start
-    deltatime = str(timedelta(seconds=deltatime))
-    date = datetime.today().strftime('%Y-%m-%d')
-    write_log(deltatime, date, args)
+    delete_final_files()
+    write_log(args, start)
 
 if __name__ == '__main__':
     main()

@@ -5,12 +5,13 @@ import os
 import shutil
 from Bio import SeqIO
 
-def genomes(multifasta):
+def split_genomes():
+    fasta_filename = 'genomes.fasta'
     if os.path.isdir('genomes'):
         shutil.rmtree('genomes')
     os.mkdir('genomes')
 
-    for seq in SeqIO.parse(multifasta, 'fasta'):
+    for seq in SeqIO.parse(fasta_filename, 'fasta'):
         description = seq.description[seq.description.find(' ')+1:]
         with open(f'genomes/{seq.id}.fasta', 'w', encoding='utf-8') as output:
             output.write(f'>{seq.id} {description}\n{seq.seq}\n')
@@ -27,14 +28,15 @@ def get_seqs(multifasta):
         seqs[genome_id].append(seq)
     return seqs
 
-def prot_orf(multifasta, dtype):
+def split_prots_orfs(dtype):
     folder = 'proteomes' if dtype == '_prot_' else 'orfeomes'
+    fasta_filename = 'proteomes.fasta' if dtype == '_prot_' else 'orfeomes.fasta'
 
     if os.path.isdir(folder):
         shutil.rmtree(folder)
     os.mkdir(folder)
 
-    seqs = get_seqs(multifasta) #dict[genome_id] = [biopythonseq1, biopythonseq2,..]
+    seqs = get_seqs(fasta_filename) #dict[genome_id] = [biopythonseq1, biopythonseq2,..]
     for genome_id, seq_list in seqs.items():
         with open(f'{folder}/{genome_id}.fasta', 'w', encoding='utf-8') as output:
             for seq in seq_list:
@@ -43,6 +45,6 @@ def prot_orf(multifasta, dtype):
                 output.write(f'>{prot_id} {genome_id} {description}\n{seq.seq}\n')
 
 def main():
-    genomes('genomes.fasta')
-    prot_orf('proteomes.fasta', '_prot_')
-    prot_orf('orfeomes.fasta', '_cds_')
+    split_genomes()
+    split_prots_orfs('_prot_')
+    split_prots_orfs('_cds_')
