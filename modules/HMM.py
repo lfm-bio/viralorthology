@@ -6,6 +6,7 @@ if CHECK, the scrips only works with the fastas that added sequences from the fi
 '''
 import os
 from Bio import SeqIO
+from tqdm import tqdm
 from modules.misc import clean_protDB
 from modules.misc import get_genomes_fasta
 from modules.misc import get_n_genomes
@@ -99,7 +100,8 @@ def hmm(check, search_params):
     fastas = get_file_list()
     fastas = get_ordered_files(fastas)
     n_genomes = get_n_genomes()
-    for fasta in fastas:
+    print('Searching for new genes with HMM')
+    for fasta in tqdm(fastas):
         if check:
             run_hmm = check_added_seqs(fasta) # checks if new seqs were added since first hmm
             if not run_hmm:

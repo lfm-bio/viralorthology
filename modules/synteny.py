@@ -160,4 +160,3 @@ def main():
     synteny()
 
     os.chdir('..')
-    print('check synteny.txt')

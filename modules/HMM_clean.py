@@ -4,6 +4,7 @@ if the final group has less than 2 seqs, the group is deleted
 '''
 import os
 from Bio import SeqIO
+from tqdm import tqdm
 from modules.HMM import get_hits_hmmsearch
 from modules.HMM import align_build_search
 from modules.misc import delete_tmp_files
@@ -37,7 +38,8 @@ def remake_group(group, hits):
 def clean_groups():
     groups = get_file_list()
     groups = get_ordered_files(groups)
-    for group in groups:
+    print('Cleaning groups')
+    for group in tqdm(groups):
         results = align_build_search(group)
         hits = list(get_hits_hmmsearch(results).values())
         groups_been_modified = remake_group(group, hits)
