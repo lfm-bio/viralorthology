@@ -2,9 +2,12 @@
 This script divides the initial multifastas into individual fastas and gives the right description format to every seq
 '''
 import os
+import shutil
 from Bio import SeqIO
 
 def genomes(multifasta):
+    if os.path.isdir('genomes'):
+        shutil.rmtree('genomes')
     os.mkdir('genomes')
 
     for seq in SeqIO.parse(multifasta, 'fasta'):
@@ -25,15 +28,11 @@ def get_seqs(multifasta):
     return seqs
 
 def prot_orf(multifasta, dtype):
-    if dtype == '_prot_':
-        folder = 'proteomes'
-    elif dtype == '_cds_':
-        folder = 'orfeomes'
+    folder = 'proteomes' if dtype == '_prot_' else 'orfeomes'
 
-    try:
-        os.mkdir(folder)
-    except:
-        pass
+    if os.path.isdir(folder):
+        shutil.rmtree(folder)
+    os.mkdir(folder)
 
     seqs = get_seqs(multifasta) #dict[genome_id] = [biopythonseq1, biopythonseq2,..]
     for genome_id, seq_list in seqs.items():
