@@ -1,7 +1,7 @@
 import os
 import multiprocessing
-import time
 from Bio import SeqIO
+from modules import commands
 
 def combine_fastas(fasta_list, new_fasta_name, file_format = 'fasta-2line'):
     bioseqs = []
@@ -52,14 +52,6 @@ def add_bioseq_to_fasta(bioseq, fasta):
     with open(fasta, 'a', encoding='utf-8') as fasta:
         fasta.write(bioseq.format('fasta-2line'))
 
-def run_blastp(query_fasta, db_fasta, params = ''):
-    n_cpus = get_cpu_number()
-    err = os.system(f'blastp -query {query_fasta} -db {db_fasta} -out blastp.results -num_threads {n_cpus} {params}')
-    if err:
-        write_error_log('blastp', query_fasta)
-        print(f'Error with {query_fasta}')
-        time.sleep(3)
-
 def get_blastp_hits():
     '''
     reads blast report
@@ -92,20 +84,13 @@ def get_genome_bioseq(seq):
     genome = seq.description.split()[1]
     return genome
 
-def makeblastdb_prot(fasta):
-    err = os.system(f'makeblastdb -dbtype prot -in {fasta}')
-    if err:
-        print(f'Error with {fasta}')
-        write_error_log('makeblastdb', fasta)
-        time.sleep(3)
-
 def align_fasta_muscle(fasta):
     '''
     OUT: aligned fasta file name
     '''
     aligned_fasta = fasta.replace('.fasta', '.muscle')
     if not os.path.isfile(aligned_fasta):
-        os.system(f'muscle -align {fasta} -output {aligned_fasta}')
+        commands.align_muscle(fasta, aligned_fasta)
     return aligned_fasta
 
 def make_hmm_hammer(aligned_fasta):
@@ -113,7 +98,7 @@ def make_hmm_hammer(aligned_fasta):
     OUT: hmm file name
     '''
     HMM = aligned_fasta.replace('.muscle', '.hmmbuild')
-    os.system(f'hmmbuild {HMM} {aligned_fasta}')
+    commands.build_hmm(HMM, aligned_fasta)
     return HMM
 
 def search_with_hmm(HMM, db_path, params):
@@ -121,7 +106,7 @@ def search_with_hmm(HMM, db_path, params):
     OUT: hmm search report file name
     '''
     search_hmm = HMM.replace('.hmmbuild', '.hmmsearch')
-    os.system(f'hmmsearch -o {search_hmm} {params} {HMM} {db_path}')
+    commands.search_hmm(search_hmm, params, HMM, db_path)
     return search_hmm
 
 def get_bioseqs(fasta):
@@ -131,9 +116,6 @@ def get_bioseqs(fasta):
 def sort_bioseqs_b_to_s(bioseqs):
     bioseqs.sort(key=lambda seq: len(seq.seq), reverse=True)
     return bioseqs
-
-def run_orfinder(file_in, file_out, params):
-    os.system(f'ORFfinder -in {file_in} -out {file_out} {params}')
 
 def get_file_list(file_ext = '.fasta'):
     files = [xfile for xfile in os.listdir(os.curdir) if xfile.endswith(file_ext)]

@@ -5,11 +5,11 @@ translates them to protein and cleans the output (removes proteins that are anno
 import os
 from Bio import SeqIO
 from tqdm import tqdm
+from modules import commands
 from modules.misc import get_file_list
-from modules.misc import run_orfinder
 from modules.misc import sort_bioseqs_b_to_s
 from modules.misc import get_bioseqs
-from modules.misc import makeblastdb_prot
+
 
 def launch_orfinder(params):
     genomes = get_file_list()
@@ -17,7 +17,7 @@ def launch_orfinder(params):
     print('Running ORFfinder')
     for genome in tqdm(genomes):
         file_in, file_out = genome, genome.replace('.fasta', '.OForf')
-        run_orfinder(file_in, file_out, params)
+        commands.run_orfinder(file_in, file_out, params)
 
 def sort_genes_by_len():
     '''
@@ -112,7 +112,7 @@ def make_protDB_ingroup():
         for seq in SeqIO.parse(group, 'fasta'):
             protDB_ingroup.write(seq.format('fasta-2line'))
     protDB_ingroup.close()
-    makeblastdb_prot('protDB_ingroup.fasta')
+    commands.makeblastdb_prot('protDB_ingroup.fasta')
 
 def make_OF_db():
     with open('../orfeomes_OF.fasta', 'a', encoding='utf-8') as OF_db:

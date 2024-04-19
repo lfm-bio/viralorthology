@@ -2,6 +2,7 @@
 This script launches proteinortho and grab_proteins
 '''
 import os
+from modules import commands
 from modules.misc import get_file_list
 from modules.misc import delete_tmp_files
 
@@ -11,8 +12,8 @@ def proteinortho(params):
     '''
     proteomes = get_file_list()
     proteomes = (' ').join(proteomes)
-    os.system(f'proteinortho {proteomes} {params}')
-    os.system(f'po_grab_proteins -tofiles myproject.proteinortho.tsv -exact {proteomes}')
+    print('Running proteinortho...')
+    commands.proteinortho(proteomes, params)
 
 def move_files():
     '''

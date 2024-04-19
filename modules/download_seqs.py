@@ -3,24 +3,24 @@ import os
 import time
 from tqdm import tqdm
 from modules.misc import combine_fastas
+from modules import commands
 
 def get_ids():
-    ids_file = open('ids.txt', encoding='utf-8')
     ids = []
-    for line in ids_file:
-        ids.append(line.strip())
-    ids_file.close()
+    with open('ids.txt', encoding='utf-8') as ids_file:
+        for line in ids_file:
+            ids.append(line.strip())
     return ids
 
 def download_fastas(ids):
     print('Downloading files...')
     for seqid in tqdm(ids):
         while True:
-            err1 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta > {seqid}.genome')
+            err1 = commands.download_genome(seqid)
             time.sleep(2)
-            err2 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_aa > {seqid}.proteome')
+            err2 = commands.download_proteome(seqid)
             time.sleep(2)
-            err3 = os.system(f'efetch -db nuccore -id "{seqid}" -format fasta_cds_na > {seqid}.orfeome')
+            err3 = commands.download_orfeome(seqid)
             time.sleep(2)
             if sum([err1, err2, err3]) == 0:
                 break

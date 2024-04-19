@@ -35,6 +35,9 @@ class Args:
         self.blastp = ''
         self.HMMsearch = ''
 
+    def get_all_params(self):
+        return f'proteinortho: {self.proteinortho}\norfinder: {self.orffinder}\nblastp: {self.blastp}\nHMMsearch: {self.HMMsearch}'
+
     def __repr__(self):
         return f'{self.proteinortho} {self.orffinder} {self.blastp} {self.HMMsearch}'
 
@@ -76,8 +79,7 @@ def write_log(elapsed_time, date, args):
     with open('log.txt', 'w', encoding="utf-8") as log:
         log.write(f'{date}\nElapsed time: {elapsed_time}\n')
         log.write('Parameters:\n')
-        for software, params in args.items():
-            log.write(f'{software}: {params}\n')
+        log.write(args.get_all_params())
 
 def check_params(args):
     '''
@@ -123,13 +125,22 @@ def only_on_first_round(params_po):
     cleanDB()
     make_nseq_report('1-ProteinOrtho')
 
+def check_files():
+    # ADD INFO
+    if not os.path.isfile('genomes.fasta'):
+        sys.exit(1)
+    if not os.path.isfile('orfeomes.fasta'):
+        sys.exit(1)
+    if not os.path.isfile('proteomes.fasta'):
+        sys.exit(1)
+
 def main():
-    print('ARREGLAR WRITE LOG')
-    quit()
     start = time.time()
 
     usr_input = sys.argv[1:]
     check_argv(usr_input)
+
+    check_files()
 
     args = split_params(usr_input)
     check_params(args)

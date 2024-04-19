@@ -1,12 +1,11 @@
 import os
 from Bio import SeqIO
+from modules import commands
 from modules.misc import clean_protDB
 from modules.misc import get_nseqs
 from modules.misc import get_n_genomes
 from modules.misc import get_ordered_files
-from modules.misc import makeblastdb_prot
 from modules.misc import get_genome_bioseq
-from modules.misc import run_blastp
 from modules.misc import get_blastp_hits
 from modules.misc import get_file_list
 from modules.misc import add_bioseq_to_fasta
@@ -21,27 +20,26 @@ def make_db_protsInGroup():
     fastas = get_file_list()
     fastas = get_ordered_files(fastas)
     n_genomes = get_n_genomes()
-    protDB_ingroup = open('protDB_ingroup.fasta', 'w', encoding='utf-8')
-    for group in fastas:
-        n_genes = get_nseqs(group)
-        if n_genes < n_genomes: #only adds prots from groups that are not full
-            for seq in SeqIO.parse(group, 'fasta'):
-                protDB_ingroup.write(f'>{group}\n{seq.seq}\n')
-    protDB_ingroup.close()
-    makeblastdb_prot('protDB_ingroup.fasta')
+    with open('protDB_ingroup.fasta', 'w', encoding='utf-8') as protDB_ingroup:
+        for group in fastas:
+            n_genes = get_nseqs(group)
+            if n_genes < n_genomes: #only adds prots from groups that are not full
+                for seq in SeqIO.parse(group, 'fasta'):
+                    protDB_ingroup.write(f'>{group}\n{seq.seq}\n')
+    commands.makeblastdb_prot('protDB_ingroup.fasta')
 
 def run_read_blastp(params):
     '''
     launches blastp
     OUT: best hit / False
     '''
-    run_blastp('seq.query', 'protDB_ingroup.fasta', params)
+    commands.blastp('seq.query', 'protDB_ingroup.fasta', params)
+
     os.remove('seq.query')
     hits = get_blastp_hits()
     if hits:
         return hits[0] #best hit
-    else:
-        return False
+    return False
 
 def add_seqs(hits_all):
     prots_to_remove = []

@@ -1,12 +1,13 @@
 import os
 from Bio import SeqIO
+from tqdm import tqdm
+from modules import commands
 from modules.misc import get_n_genomes
 from modules.misc import get_nseqs
 from modules.misc import get_genomes_fasta
 from modules.misc import get_file_list
 from modules.blastp import make_db_protsInGroup
 from modules.misc import get_first_bioseq_fasta
-from modules.misc import run_blastp
 from modules.misc import get_blastp_hits
 from modules.misc import delete_tmp_files
 from modules.misc import align_fasta_muscle
@@ -24,13 +25,13 @@ def align_buildhmm():
             continue
         output_a2m = fasta.replace('.fasta', '.a2m')
         output_muscle = align_fasta_muscle(fasta)
-        os.system(f'reformat_msa fas a2m {output_muscle} {output_a2m}') #fasta to a2m
-        os.system(f'hhmake -i {output_a2m} -id 100 -diff {n_genomes}')
+        commands.fasta_to_a2m(output_muscle, output_a2m)
+        commands.hmm_make(output_a2m, n_genomes)
         os.remove(output_a2m)
 
 def get_hmmvshmm_score(g1, g2):
     report = f'{g1}-{g2}'
-    os.system(f'hhalign -i {g1} -t {g2} -o {report} -glob')
+    commands.hmm_align(g1, g2, report)
     report_op = open(report, encoding='utf-8')
     score = 0
     for line in report_op:
@@ -44,7 +45,7 @@ def get_hmmvshmm_score(g1, g2):
 def run_read_blastp(fasta):
     first_seq = get_first_bioseq_fasta(fasta)
     SeqIO.write(first_seq, 'query.fasta', 'fasta-2line')
-    run_blastp('query.fasta', 'protDB_ingroup.fasta', '-evalue 10 -word_size 2')
+    commands.blastp('query.fasta', 'protDB_ingroup.fasta', '-evalue 10 -word_size 2')
     os.remove('query.fasta')
     hits = get_blastp_hits()
     groups_to_try = list(set([hit[1].replace('.fasta', '.hhm') for hit in hits])) #only the names, no evalues
@@ -54,7 +55,8 @@ def get_compatible_groups():
     hmms = get_file_list('.hhm')
     final_groups = []
     already_checked = []
-    for g1 in hmms:
+    print('Comparing HMMs')
+    for g1 in tqdm(hmms):
         if g1 in already_checked:
             continue
         already_checked.append(g1)

@@ -1,9 +1,8 @@
 import os
 from Bio import SeqIO
 from tqdm import tqdm
+from modules import commands
 from modules.misc import get_file_list
-from modules.misc import makeblastdb_prot
-from modules.misc import run_blastp
 from modules.misc import get_blastp_hits
 from modules.misc import get_bioseqs
 from modules.misc import delete_tmp_files
@@ -16,22 +15,22 @@ def make_fastas_DB(seqs, proteome):
     '''
     makes blastdb with proteome and each query.fasta file
     '''
-    makeblastdb_prot(proteome)
+    commands.makeblastdb_prot(proteome)
     for seq in seqs:
         SeqIO.write(seq, f'{seq.id}.fasta', format='fasta-2line')
         fasta = f'{seq.id}.fasta'
-        makeblastdb_prot(fasta)
+        commands.makeblastdb_prot(fasta)
 
 def search_paralogs(query, seqs, groups_paralogs, proteome):
     '''
     Searches for reciprocal paralogs of the query seq and adds them to the already found paralogs (groups_paralogs)
     '''
     paralogs = []
-    run_blastp(f'{query}.fasta', proteome, '-evalue 0.0000000001')
+    commands.blastp(f'{query}.fasta', proteome, '-evalue 0.0000000001')
     hits = get_blastp_hits()
     hits = [hit[1] for hit in hits] #only the IDs
     for hit in hits:
-        run_blastp(f'{hit}.fasta', f'{query}.fasta', '-evalue 0.0000000001')
+        commands.blastp(f'{hit}.fasta', f'{query}.fasta', '-evalue 0.0000000001')
         hits = get_blastp_hits()
         if hits:
             paralogs.append(hit)
@@ -149,14 +148,14 @@ def make_new_files(proteome, prots_to_remove):
 
 def submain():
     proteomes = get_file_list()
-    for proteome in proteomes:
+    print('Searching for paralogs')
+    for proteome in tqdm(proteomes):
         groups_paralogs = [] #paralogy groups that has been found [[g1], [g2],...]
         seqs = get_bioseqs(proteome) #seqs (biopython)
         make_fastas_DB(seqs, proteome) #makes blastdb with proteome and each protein
         seqs_ids = get_ids(seqs)
 
-        print(f'\nSearching for paralogs in {proteome}\n')
-        for seq in tqdm(seqs_ids):
+        for seq in seqs_ids:
             groups_paralogs = search_paralogs(seq, seqs_ids, groups_paralogs, proteome)
 
         groups_paralogs = clean_groups(groups_paralogs)

@@ -2,35 +2,29 @@
 This script filters similar genomes, and moves them to another folder (/filtered)
 '''
 import os
-import sys
 from modules.misc import get_file_list
 from modules.misc import delete_tmp_files
+from modules import commands
 
 def makeblastdb():
     fastas = get_file_list()
     for fasta in fastas:
-        err = os.system(f'makeblastdb -dbtype nucl -in {fasta}')
-        if err:
-            sys.exit(1)
+        commands.make_blastdb_nt(fasta)
 
 def are_similar():
-    result = open('test', encoding='utf-8')
     similar = False
-    for line in result:
-        if '# 0 hits found' in line:
-            break
-        if '@' in line:
-            q_cov =  int(line.strip().split('@')[0])
-            ident = float(line.strip().split('@')[1])
-            if q_cov > 90 and ident > 95: # PARAMS TO DETERMINE SIMILITUDE
-                similar = True
+    with open('test', encoding='utf-8') as result:
+        for line in result:
+            if '# 0 hits found' in line:
                 break
-    result.close()
+            if '@' in line:
+                q_cov =  int(line.strip().split('@')[0])
+                ident = float(line.strip().split('@')[1])
+                if q_cov > 90 and ident > 95: # PARAMS TO DETERMINE SIMILITUDE
+                    similar = True
+                    break
     os.remove('test')
     return similar
-
-def run_blast(f1, f2):
-    os.system(f"blastn -query {f1} -db {f2} -out test -outfmt '7 delim=@ qcovs pident'")
 
 def filter_genomes():
     fastas = get_file_list()
@@ -41,7 +35,7 @@ def filter_genomes():
         for f2 in fastas:
             if f2 == f1:
                 continue
-            run_blast(f1, f2)
+            commands.blast_filter_genomes(f1, f2)
             if are_similar():
                 if f2 in fastas:
                     fastas.pop(fastas.index(f2))

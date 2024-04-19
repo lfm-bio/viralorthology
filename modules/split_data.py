@@ -5,16 +5,12 @@ import os
 from Bio import SeqIO
 
 def genomes(multifasta):
-    try:
-        os.mkdir('genomes')
-    except:
-        pass
+    os.mkdir('genomes')
 
     for seq in SeqIO.parse(multifasta, 'fasta'):
         description = seq.description[seq.description.find(' ')+1:]
-        output = open(f'genomes/{seq.id}.fasta', 'w', encoding='utf-8')
-        output.write(f'>{seq.id} {description}\n{seq.seq}\n')
-        output.close()
+        with open(f'genomes/{seq.id}.fasta', 'w', encoding='utf-8') as output:
+            output.write(f'>{seq.id} {description}\n{seq.seq}\n')
 
 def get_seqs(multifasta):
     '''
