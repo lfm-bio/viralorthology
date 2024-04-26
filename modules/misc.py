@@ -306,3 +306,17 @@ def delete_final_files():
     if os.path.exists('first-round-n_seqs_groups.csv'):
         os.remove('first-round-n_seqs_groups.csv')
     os.remove('protDB_OF.db')
+
+def merge_protDBs(db):
+    first_round_db_name = f'first-round-{db}'
+    if not os.path.isfile(first_round_db_name): # no filtered genomes
+        return False
+
+    new_db = open(db, 'a', encoding='utf-8')
+
+    with open(first_round_db_name, encoding='utf-8') as first_round_db:
+        for line in first_round_db:
+            new_db.write(line)
+
+    new_db.close()
+    os.remove(first_round_db_name)
