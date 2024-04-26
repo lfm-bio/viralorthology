@@ -28,13 +28,12 @@ def download_seqs(query, mindate):
         err = os.system(f'esearch -db nuccore -query "{query} AND viruses[filter]" | efilter -mindate {mindate} | efetch -format fasta > new_genomes.fasta')
 
 def filter_by_len(minlen):
-    tmp = open('tmp.fasta', 'w', encoding='utf-8')
-    for seq in SeqIO.parse('new_genomes.fasta', 'fasta'):
-        if 'partial genome' in seq.description:
-            continue
-        if len(seq.seq) >= minlen:
-            tmp.write(seq.format('fasta'))
-    tmp.close()
+    with open('tmp.fasta', 'w', encoding='utf-8') as tmp:
+        for seq in SeqIO.parse('new_genomes.fasta', 'fasta'):
+            if 'partial genome' in seq.description:
+                continue
+            if len(seq.seq) >= minlen:
+                tmp.write(seq.format('fasta'))
     os.remove('new_genomes.fasta')
     os.rename('tmp.fasta', 'new_genomes.fasta')
 
