@@ -47,11 +47,10 @@ def remove_identicals():
     for seq in SeqIO.parse('genomes_old.fasta', 'fasta'):
         ids.append(seq.id)
         seqs.append(seq.seq)
-    tmp = open('tmp.fasta', 'w', encoding='utf-8')
-    for seq in SeqIO.parse('new_genomes.fasta', 'fasta'):
-        if seq.id not in ids and seq.seq not in seqs:
-            tmp.write(seq.format('fasta'))
-    tmp.close()
+    with open('tmp.fasta', 'w', encoding='utf-8') as tmp:
+        for seq in SeqIO.parse('new_genomes.fasta', 'fasta'):
+            if seq.id not in ids and seq.seq not in seqs:
+                tmp.write(seq.format('fasta'))
     os.remove('new_genomes.fasta')
     os.rename('tmp.fasta', 'new_genomes.fasta')
 
