@@ -68,11 +68,10 @@ def remove_wrong_genomes():
     index_to_remove = input('Enter N of seqs to remove separated by spaces: ').split()
     index_to_remove = [int(N) for N in index_to_remove]
     ids_to_remove = [seqid for n, seqid in enumerate(ids) if n in index_to_remove]
-    tmp = open('tmp.fasta', 'w', encoding='utf-8')
-    for seq in SeqIO.parse('new_genomes.fasta', 'fasta'):
-        if seq.id not in ids_to_remove:
-            tmp.write(seq.format('fasta'))
-    tmp.close()
+    with open('tmp.fasta', 'w', encoding='utf-8') as tmp:
+        for seq in SeqIO.parse('new_genomes.fasta', 'fasta'):
+            if seq.id not in ids_to_remove:
+                tmp.write(seq.format('fasta'))
     os.remove('new_genomes.fasta')
     os.rename('tmp.fasta', 'genomes.fasta')
 
