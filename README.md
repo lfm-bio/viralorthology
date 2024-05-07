@@ -29,8 +29,8 @@ Input: genomas, orfeomas y proteomas. Output: Grupos de ortología, grupos de pa
 Correr las siguientes lineas en la consola:
 
 ```
-wget https://raw.githubusercontent.com/lfm-bio/viralorthology/main/setup_pipeline.py
-python3 setup_pipeline.py
+wget https://raw.githubusercontent.com/lfm-bio/viralorthology/main/setup_pipeline.sh
+./setup_pipeline.sh
 ```
 ## BEFORE USING
 
