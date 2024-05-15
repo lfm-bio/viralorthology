@@ -5,7 +5,7 @@ from datetime import timedelta, datetime
 import multiprocessing
 from Bio import SeqIO
 from modules import commands
-from modules.Args import Args
+from classes.Args import Args
 
 def get_args():
     def check_args(args):

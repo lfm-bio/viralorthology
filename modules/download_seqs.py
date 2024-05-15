@@ -2,8 +2,8 @@
 import os
 import time
 from tqdm import tqdm
-from modules.misc import combine_fastas
 from modules import commands
+from modules.misc import combine_fastas
 
 def get_ids():
     ids = []

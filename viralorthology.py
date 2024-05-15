@@ -18,7 +18,6 @@ from modules.merge_groups import main as merge_groups
 from modules.prepare_second_round import main as prepare_second_round
 from modules.synteny import main as synteny
 from modules.check_filtered_genomes import main as check_filtered_genomes
-from modules.update_db import main as update_db
 from modules.download_seqs import main as download_seqs
 from modules.check_dependencies import main as check_dependencies
 from modules.kimura import main as kimura
@@ -36,17 +35,14 @@ def get_params(software, params):
     return ''
 
 def check_argv():
-    if '-update_db' in sys.argv:
-        update_db()
-        sys.exit(0)
-    if '-download_seqs' in sys.argv:
-        download_seqs()
-        sys.exit(0)
     if '-check_dependencies' in sys.argv:
         check_dependencies()
         sys.exit(0)
     if '-kimura' in sys.argv:
         kimura()
+        sys.exit(0)
+    if '-download_seqs' in sys.argv:
+        download_seqs()
         sys.exit(0)
 
 def check_files():
