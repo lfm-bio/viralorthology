@@ -74,10 +74,9 @@ def join_fastas():
             else:
                 megaprots[seq.id] += str(seq.seq)
     delete_files(fastas)
-    finalfasta = open('final.fasta', 'w', encoding='utf-8')
-    for genomeID, megaprot in megaprots.items():
-        finalfasta.write(f'>{genomeID}\n{megaprot}\n')
-    finalfasta.close()
+    with open('final.fasta', 'w', encoding='utf-8') as finalfasta:
+        for genomeID, megaprot in megaprots.items():
+            finalfasta.write(f'>{genomeID}\n{megaprot}\n')
 
 def main():
     os.mkdir('kimura')
