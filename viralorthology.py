@@ -28,12 +28,6 @@ from modules.misc import get_args
 from modules.misc import delete_final_files
 from modules.misc import write_log
 
-def get_params(software, params):
-    if software in params:
-        soft_params = (' ').join(params[software])
-        return soft_params
-    return ''
-
 def check_argv():
     if '-check_dependencies' in sys.argv:
         check_dependencies()
