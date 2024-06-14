@@ -16,7 +16,6 @@ from modules.HMM_clean import main as HMM_clean
 from modules.HMMVSHMM import main as HMMvsHMM
 from modules.merge_groups import main as merge_groups
 from modules.prepare_second_round import main as prepare_second_round
-from modules.synteny import main as synteny
 from modules.check_filtered_genomes import main as check_filtered_genomes
 from modules.download_seqs import main as download_seqs
 from modules.check_dependencies import main as check_dependencies
@@ -98,7 +97,6 @@ def main():
 
     merge_protDBs('protDB.db')
     merge_protDBs('protDB_OF.db')
-    synteny()
     delete_tmp_files_final()
     delete_final_files()
     write_log(args, start)
