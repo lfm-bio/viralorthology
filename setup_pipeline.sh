@@ -17,6 +17,7 @@ unzip main.zip
 cd viralorthology-main
 sudo mkdir /usr/local/bin/vorthology
 sudo cp -rp modules /usr/local/bin/vorthology/modules
+sudo cp -rp classes /usr/local/bin/vorthology/classes
 mv viralorthology.py viralorthology
 sudo cp viralorthology /usr/local/bin/vorthology
 mv viralorthology viralorthology.py
