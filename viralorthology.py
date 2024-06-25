@@ -55,50 +55,51 @@ def main():
     check_files()
     args = get_args()
 
-    #HERE COMES THE PIPELINE
-    first_round = True
-    while True:
-        if first_round:
-            split_data()
-            filter_genomes()
+    # #HERE COMES THE PIPELINE
+    # first_round = True
+    # while True:
+    #     if first_round:
+    #         split_data()
+    #         filter_genomes()
 
-        orfinder(args.orffinder)
-        paralogs()
-        make_protDB()
+    #     orfinder(args.orffinder)
+    #     paralogs()
+    #     make_protDB()
 
-        if first_round:
-            proteinortho(args.proteinortho)
-            rename_groups()
-            merge_groups()
-            HMM_clean()
-            HMMvsHMM()
-            cleanDB()
-            make_nseq_report('1-ProteinOrtho')
+    #     if first_round:
+    #         proteinortho(args.proteinortho)
+    #         rename_groups()
+    #         merge_groups()
+    #         HMM_clean()
+    #         HMMvsHMM()
+    #         cleanDB()
+    #         make_nseq_report('1-ProteinOrtho')
 
-        HMM(args.HMMsearch)
-        make_nseq_report('2-HMM')
+    #     HMM(args.HMMsearch)
+    #     make_nseq_report('2-HMM')
 
-        blastp('protDB.db', args.blastp)
-        blastp('protDB_OF.db', args.blastp)
-        make_nseq_report('3-Blastp')
+    #     blastp('protDB.db', args.blastp)
+    #     blastp('protDB_OF.db', args.blastp)
+    #     make_nseq_report('3-Blastp')
 
-        HMM(args.HMMsearch, True)
-        make_nseq_report('4-HMM')
+    #     HMM(args.HMMsearch, True)
+    #     make_nseq_report('4-HMM')
 
-        rename_groups()
-        merge_groups()
+    #     rename_groups()
+    #     merge_groups()
 
-        if first_round:
-            if not check_filtered_genomes(): #no filtered genomes
-                break
-            prepare_second_round()
-            first_round = False
-        else:
-            break
+    #     if first_round:
+    #         if not check_filtered_genomes(): #no filtered genomes
+    #             break
+    #         prepare_second_round()
+    #         first_round = False
+    #     else:
+    #         break
 
-    merge_protDBs('protDB.db')
-    merge_protDBs('protDB_OF.db')
+    # merge_protDBs('protDB.db')
+    # merge_protDBs('protDB_OF.db')
     synteny()
+    quit()
     delete_tmp_files_final()
     delete_final_files()
     write_log(args, start)
