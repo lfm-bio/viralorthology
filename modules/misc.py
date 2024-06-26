@@ -177,13 +177,11 @@ def clean_protDB(prots_to_remove, protDB_path):
     removes genes added to a ortology group from protDB
     '''
     tmp_name = protDB_path + '_tmp'
-    new_protDB = open(tmp_name, 'w', encoding='utf-8')
+    with open(tmp_name, 'w', encoding='utf-8') as new_protDB:
+        for gene in SeqIO.parse(protDB_path, 'fasta'):
+            if gene.id not in prots_to_remove:
+                new_protDB.write(gene.format('fasta-2line'))
 
-    for gene in SeqIO.parse(protDB_path, 'fasta'):
-        if gene.id not in prots_to_remove:
-            new_protDB.write(gene.format('fasta-2line'))
-
-    new_protDB.close()
     os.remove(protDB_path)
     os.rename(tmp_name, protDB_path)
 
@@ -203,25 +201,23 @@ def get_proteinid_genomeid(fasta):
     OUT: [(protID, genomeID), (protID, genomeID), ...]
     '''
     ids = []
-    fasta = open(fasta, encoding='utf-8')
-    for line in fasta:
-        if line.startswith('>'):
-            line = line[1:].split()
-            protID, genomeID = line[0], line[1]
-            ids.append((protID, genomeID))
-    fasta.close()
+    with open(fasta, encoding='utf-8') as fasta:
+        for line in fasta:
+            if line.startswith('>'):
+                line = line[1:].split()
+                protID, genomeID = line[0], line[1]
+                ids.append((protID, genomeID))
     return ids
 
 def get_protein_ids(fasta):
     '''
     OUT: list with the id of every protein in that fasta
     '''
-    fasta = open(fasta, encoding='utf-8')
     ids = []
-    for line in fasta:
-        if line.startswith('>'):
-            ids.append(line[1:].split()[0])
-    fasta.close()
+    with open(fasta, encoding='utf-8') as fasta:
+        for line in fasta:
+            if line.startswith('>'):
+                ids.append(line[1:].split()[0])
     return ids
 
 def get_n_genomes(from_genomesfasta = False):
@@ -233,7 +229,7 @@ def get_n_genomes(from_genomesfasta = False):
         n_genomes =  get_nseqs('../genomes.fasta')
         return n_genomes
     n_genomes = len([xfile for xfile in os.listdir('../genomes') if xfile.endswith('.fasta')])
-    if os.path.isfile('../genomes_old.fasta'): #Total number of genomes for update
+    if os.path.isfile('../genomes_old.fasta'): # total number of genomes for update
         n_genomes += get_nseqs('../genomes_old.fasta')
 
     return n_genomes
@@ -312,11 +308,13 @@ def merge_protDBs(db):
     if not os.path.isfile(first_round_db_name): # no filtered genomes
         return False
 
-    new_db = open(db, 'a', encoding='utf-8')
-
-    with open(first_round_db_name, encoding='utf-8') as first_round_db:
-        for line in first_round_db:
-            new_db.write(line)
-
-    new_db.close()
+    with open(db, 'a', encoding='utf-8') as new_db:
+        with open(first_round_db_name, encoding='utf-8') as first_round_db:
+            for line in first_round_db:
+                new_db.write(line)
     os.remove(first_round_db_name)
+
+def get_unique_gene_by_id(gene_id):
+    for seq in SeqIO.parse('../protDB.db', 'fasta'):
+        if seq.id == gene_id:
+            return seq

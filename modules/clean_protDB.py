@@ -20,11 +20,10 @@ def cleanDB():
     prots_in_group = get_prots_in_group()
     db_name = '../protDB.db'
     tmp_name = db_name + '_tmp'
-    new_db = open(tmp_name, 'w', encoding='utf-8')
-    for seq in SeqIO.parse(db_name, 'fasta'):
-        if seq.id not in prots_in_group:
-            new_db.write(seq.format('fasta-2line'))
-    new_db.close()
+    with open(tmp_name, 'w', encoding='utf-8') as new_db:
+        for seq in SeqIO.parse(db_name, 'fasta'):
+            if seq.id not in prots_in_group:
+                new_db.write(seq.format('fasta-2line'))
     os.remove(db_name)
     os.rename(tmp_name, db_name)
 

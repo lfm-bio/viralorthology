@@ -1,7 +1,12 @@
 import os
 import copy
 import statistics
+from Bio import SeqIO
 from modules.misc import get_file_list
+from modules.misc import get_unique_gene_by_id
+from modules.misc import delete_tmp_files
+from modules.commands import blastp, makeblastdb_prot
+from modules.clean_protDB import cleanDB as clean_protDB
 
 def get_mid_pos(line):
     '''
@@ -31,21 +36,31 @@ def get_windows(genes_in_order_onegenome, win_len):
 
     return windows
 
-def blastp(conserved_window, gene_found, synteny_window, ortho_groups):
-    group_DB = [group for group in conserved_window if group != gene_found][0]
-    #makeblastdb
+def blastp_with_orthology_group(conserved_window, gene_found, synteny_window, ortho_groups):
+
+    def blastp_hit():
+        with open('blastp.results', encoding='utf-8') as results:
+            for line in results:
+                if '***** No hits found *****' in line:
+                    return False
+        return True
+
+    group_DB = [group for group in conserved_window if group != gene_found][0] + '.fasta'
+    makeblastdb_prot(group_DB)
     querys = [gene for gene in synteny_window if gene not in ortho_groups]
     for query in querys:
-        print(query)
-        #get prot from protDB
-        #blastear
-        #check pvalue
+        seq = get_unique_gene_by_id(query)
+        SeqIO.write(seq, 'query.fasta', 'fasta')
+        blastp('query.fasta', group_DB)
+        if blastp_hit():
+            with open(group_DB, 'a', encoding='utf-8') as fasta:
+                fasta.write(seq.format('fasta-2line'))
+        delete_tmp_files(['.pdb', '.phr', '.pin', '.pot', '.psq', '.ptf', '.pto'])
+        os.remove('blastp.results')
+        os.remove('query.fasta')
+        clean_protDB()
 
 def print_synteny(conserved_windows, genes_in_order):
-    '''
-    writes synteny.txt with the script output
-    '''
-    output = open('../synteny.txt', 'a', encoding='utf-8')
     ortho_groups = get_file_list()
     ortho_groups = [fasta.replace('.fasta', '') for fasta in ortho_groups]
     for conserved_window in conserved_windows:
@@ -68,10 +83,7 @@ def print_synteny(conserved_windows, genes_in_order):
                         ok = True
                         break
                 if ok:
-                    blastp(conserved_window, gene_found, synteny_window, ortho_groups)
-                    # HACER BLASTP
-                    output.write(f'conserved window: {(" | ").join(conserved_window)}\ngenome: {genome}\n{(" | ").join(synteny_window)}\n\n')
-    output.close()
+                    blastp_with_orthology_group(conserved_window, gene_found, synteny_window, ortho_groups)
 
 def get_conserved_windows(windows_per_genome):
     output = open('../synteny.txt', 'w', encoding='utf-8')

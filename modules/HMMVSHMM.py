@@ -45,7 +45,7 @@ def get_hmmvshmm_score(g1, g2):
 def run_read_blastp(fasta):
     first_seq = get_first_bioseq_fasta(fasta)
     SeqIO.write(first_seq, 'query.fasta', 'fasta-2line')
-    commands.blastp('query.fasta', 'protDB_ingroup.fasta', '-evalue 10 -word_size 2')
+    commands.blastp_with_orthology_group('query.fasta', 'protDB_ingroup.fasta', '-evalue 10 -word_size 2')
     os.remove('query.fasta')
     hits = get_blastp_hits()
     groups_to_try = list(set([hit[1].replace('.fasta', '.hhm') for hit in hits])) #only the names, no evalues

@@ -10,7 +10,6 @@ from modules.misc import get_file_list
 from modules.misc import sort_bioseqs_b_to_s
 from modules.misc import get_bioseqs
 
-
 def launch_orfinder(params):
     genomes = get_file_list()
     params = '-outfmt 1 ' + params # outfmt = DNA
@@ -91,7 +90,7 @@ def clean_OFfiles():
     removes from OF output prots that are already annotated (in, ==, out)
     '''
     discarted = open('discarted.OF', 'w', encoding='utf-8')
-    print('Cleaning ORFfinder output')
+    print('Cleaning ORFfinder output...')
     OFprots_to_remove = []
     of_files = get_file_list('.OFprot')
     for of_file in tqdm(of_files):

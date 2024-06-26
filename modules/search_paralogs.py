@@ -7,10 +7,6 @@ from modules.misc import get_blastp_hits
 from modules.misc import get_bioseqs
 from modules.misc import delete_tmp_files
 
-def get_ids(seqs):
-    seqs = [seq.id for seq in seqs]
-    return seqs
-
 def make_fastas_DB(seqs, proteome):
     '''
     makes blastdb with proteome and each query.fasta file
@@ -21,16 +17,16 @@ def make_fastas_DB(seqs, proteome):
         fasta = f'{seq.id}.fasta'
         commands.makeblastdb_prot(fasta)
 
-def search_paralogs(query, seqs, groups_paralogs, proteome):
+def search_paralogs(query, groups_paralogs, proteome):
     '''
     Searches for reciprocal paralogs of the query seq and adds them to the already found paralogs (groups_paralogs)
     '''
     paralogs = []
-    commands.blastp(f'{query}.fasta', proteome, '-evalue 0.0000000001')
+    commands.blastp(f'{query}.fasta', proteome, '-evalue 0.0000001')
     hits = get_blastp_hits()
     hits = [hit[1] for hit in hits] #only the IDs
     for hit in hits:
-        commands.blastp(f'{hit}.fasta', f'{query}.fasta', '-evalue 0.0000000001')
+        commands.blastp(f'{hit}.fasta', f'{query}.fasta', '-evalue 0.0000001')
         hits = get_blastp_hits()
         if hits:
             paralogs.append(hit)
@@ -88,7 +84,6 @@ def iteration(old):
     return new
 
 def clean_groups(groups_paralogs):
-
     final = []
     new_groups = iteration(groups_paralogs)
 
@@ -153,10 +148,10 @@ def submain():
         groups_paralogs = [] #paralogy groups that has been found [[g1], [g2],...]
         seqs = get_bioseqs(proteome) #seqs (biopython)
         make_fastas_DB(seqs, proteome) #makes blastdb with proteome and each protein
-        seqs_ids = get_ids(seqs)
+        seqs_ids = [seq.id for seq in seqs]
 
         for seq in seqs_ids:
-            groups_paralogs = search_paralogs(seq, seqs_ids, groups_paralogs, proteome)
+            groups_paralogs = search_paralogs(seq, groups_paralogs, proteome)
 
         groups_paralogs = clean_groups(groups_paralogs)
 

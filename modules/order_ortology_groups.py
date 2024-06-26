@@ -1,5 +1,5 @@
 '''
-renames the ortology groups going from bigger to smaller
+renames the orthology groups going from bigger to smaller
 '''
 import os
 from modules.misc import get_file_list
@@ -36,6 +36,3 @@ def main():
     rename_groups()
 
     os.chdir('..')
-
-if __name__ == '__main__':
-    main()
