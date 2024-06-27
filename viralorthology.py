@@ -27,6 +27,7 @@ from modules.misc import delete_tmp_files_final
 from modules.misc import get_args
 from modules.misc import delete_final_files
 from modules.misc import write_log
+from modules.misc import check_files
 
 def check_argv():
     if '-check_dependencies' in sys.argv:
@@ -38,15 +39,6 @@ def check_argv():
     if '-download_seqs' in sys.argv:
         download_seqs()
         sys.exit(0)
-
-def check_files():
-    # ADD INFO
-    if not os.path.isfile('genomes.fasta'):
-        sys.exit(1)
-    if not os.path.isfile('orfeomes.fasta'):
-        sys.exit(1)
-    if not os.path.isfile('proteomes.fasta'):
-        sys.exit(1)
 
 def main():
     start = time.time()

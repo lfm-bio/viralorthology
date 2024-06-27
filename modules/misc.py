@@ -8,6 +8,7 @@ from modules import commands
 from classes.Args import Args
 
 def get_args():
+
     def check_args(args):
         '''
         checks if the user changed some prohibited parameter
@@ -314,7 +315,18 @@ def merge_protDBs(db):
                 new_db.write(line)
     os.remove(first_round_db_name)
 
-def get_unique_gene_by_id(gene_id):
+def get_unique_gene_bioseq_by_id(gene_id):
     for seq in SeqIO.parse('../protDB.db', 'fasta'):
         if seq.id == gene_id:
             return seq
+
+def check_files():
+    if not os.path.isfile('genomes.fasta'):
+        print('genomes.fasta not found, run viralorthology -download_seqs')
+        sys.exit(1)
+    if not os.path.isfile('orfeomes.fasta'):
+        print('orfeomes.fasta not found, run viralorthology -download_seqs')
+        sys.exit(1)
+    if not os.path.isfile('proteomes.fasta'):
+        print('proteomes.fasta not found, run viralorthology -download_seqs')
+        sys.exit(1)

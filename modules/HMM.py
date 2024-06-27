@@ -61,11 +61,10 @@ def add_new_genes(fasta, new_genes):
     '''
     adds newly found genes to the ortology group
     '''
-    fasta = open(fasta, 'a', encoding='utf-8')
-    for gene in SeqIO.parse('../protDB.db', 'fasta'):
-        if gene.id in new_genes:
-            fasta.write(gene.format('fasta-2line'))
-    fasta.close()
+    with open(fasta, 'a', encoding='utf-8') as fasta:
+        for gene in SeqIO.parse('../protDB.db', 'fasta'):
+            if gene.id in new_genes:
+                fasta.write(gene.format('fasta-2line'))
 
 def align_build_search(fasta, search_params = ''):
     '''
@@ -100,7 +99,7 @@ def hmm(check, search_params):
     fastas = get_file_list()
     fastas = get_ordered_files(fastas)
     n_genomes = get_n_genomes()
-    print('Searching for new genes with HMM')
+    print('Searching for new genes with HMM...')
     for fasta in tqdm(fastas):
         if check:
             run_hmm = check_added_seqs(fasta) # checks if new seqs were added since first hmm

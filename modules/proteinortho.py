@@ -31,7 +31,10 @@ def clean_tmpfiles():
     os.chdir('../proteomes')
     delete_tmp_files(['.phr', '.pin', '.psq'])
 
-def main(params = '--p=blastp+'):
+def main(params):
+
+    if not params:
+        params = '--p=blastp+'
 
     os.chdir('proteomes')
 

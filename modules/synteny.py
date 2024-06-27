@@ -3,15 +3,12 @@ import copy
 import statistics
 from Bio import SeqIO
 from modules.misc import get_file_list
-from modules.misc import get_unique_gene_by_id
+from modules.misc import get_unique_gene_bioseq_by_id
 from modules.misc import delete_tmp_files
 from modules.commands import blastp, makeblastdb_prot
 from modules.clean_protDB import cleanDB as clean_protDB
 
 def get_mid_pos(line):
-    '''
-    devuelve posicion central del gen
-    '''
     mid_pos = line[line.find('[location=')+10:line.find('[', line.find('[location=')+1)-2].strip('complement()')
     if line.startswith('>ORFINDER'):
         mid_pos = line[line.find('[location=')+10:line.find(']', line.find('[location=')+1)].strip('complement()')
@@ -49,7 +46,7 @@ def blastp_with_orthology_group(conserved_window, gene_found, synteny_window, or
     makeblastdb_prot(group_DB)
     querys = [gene for gene in synteny_window if gene not in ortho_groups]
     for query in querys:
-        seq = get_unique_gene_by_id(query)
+        seq = get_unique_gene_bioseq_by_id(query)
         SeqIO.write(seq, 'query.fasta', 'fasta')
         blastp('query.fasta', group_DB)
         if blastp_hit():
@@ -60,7 +57,7 @@ def blastp_with_orthology_group(conserved_window, gene_found, synteny_window, or
         os.remove('query.fasta')
         clean_protDB()
 
-def print_synteny(conserved_windows, genes_in_order):
+def check_synteny(conserved_windows, genes_in_order):
     ortho_groups = get_file_list()
     ortho_groups = [fasta.replace('.fasta', '') for fasta in ortho_groups]
     for conserved_window in conserved_windows:
@@ -105,7 +102,7 @@ def get_conserved_windows(windows_per_genome):
 def get_synteny(genes_in_order):
     windows_per_genome = {genome : get_windows(genes_in_order[genome], 2) for genome in genes_in_order}
     conserved_windows = get_conserved_windows(windows_per_genome)
-    print_synteny(conserved_windows, genes_in_order)
+    check_synteny(conserved_windows, genes_in_order)
 
 def get_genes(fasta, genes_no_order):
     '''
@@ -130,9 +127,6 @@ def get_genes(fasta, genes_no_order):
     return no_order
 
 def get_genes_in_order():
-    '''
-    devuelve dict genes[genoma] = [genes_ordenados] #(mid_pos, gene)
-    '''
 
     def get_genes_no_order(fastas):
         '''
@@ -146,9 +140,6 @@ def get_genes_in_order():
         return genes_no_order
 
     def order_genes(genes):
-        '''
-        devuelve diccionario con lista de genes ordenados
-        '''
         for genoma in genes:
             genes[genoma].sort()
         return genes

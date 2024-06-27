@@ -65,7 +65,7 @@ def translate():
             for seq in SeqIO.parse(orfeome, 'fasta'):
                 output.write(f'>{seq.description}\n{seq.seq.translate(stop_symbol="")}\n')
 
-def move_files():
+def move_fastas():
     files = get_file_list('.OForf')
     for xfile in files:
         os.replace(xfile, f'../orfeomes/{xfile}')
@@ -89,10 +89,10 @@ def clean_OFfiles():
     '''
     removes from OF output prots that are already annotated (in, ==, out)
     '''
-    discarted = open('discarted.OF', 'w', encoding='utf-8')
     print('Cleaning ORFfinder output...')
     OFprots_to_remove = []
     of_files = get_file_list('.OFprot')
+    discarted = open('discarted.OF', 'w', encoding='utf-8')
     for of_file in tqdm(of_files):
         anotated_fasta = of_file.replace('.OFprot', '.fasta')
         for seqOF in SeqIO.parse(of_file, 'fasta'):
@@ -128,7 +128,7 @@ def main(params = '-ml 90 -s 0'):
     edit_orfeomes()
     make_OF_db()
     translate()
-    move_files()
+    move_fastas()
     os.chdir('../proteomes')
     clean_OFfiles()
 
