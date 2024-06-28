@@ -1,14 +1,15 @@
 import os
 
-def move_files():
-    os.chdir('filtered')
-    files = list(os.listdir(os.curdir))
-    for xfile in files:
-        os.replace(xfile, f'../{xfile}')
-    os.chdir('..')
-    os.rmdir('filtered')
-
 def delete_move_files():
+
+    def move_files():
+        os.chdir('filtered')
+        files = list(os.listdir(os.curdir))
+        for xfile in files:
+            os.replace(xfile, f'../{xfile}')
+        os.chdir('..')
+        os.rmdir('filtered')
+
     for folder in ['genomes', 'orfeomes', 'proteomes']:
         os.chdir(folder)
         files = [xfile for xfile in os.listdir(os.curdir) if os.path.isfile(xfile)]

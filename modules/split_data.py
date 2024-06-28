@@ -1,42 +1,39 @@
-'''
-This script divides the initial multifastas into individual fastas and gives the right description format to every seq
-'''
 import os
 import shutil
 from Bio import SeqIO
 
-def split_genomes():
-    fasta_filename = 'genomes.fasta'
+def split_genomes(fasta):
     if os.path.isdir('genomes'):
         shutil.rmtree('genomes')
     os.mkdir('genomes')
 
-    for seq in SeqIO.parse(fasta_filename, 'fasta'):
+    for seq in SeqIO.parse(fasta, 'fasta'):
         description = seq.description[seq.description.find(' ')+1:]
         with open(f'genomes/{seq.id}.fasta', 'w', encoding='utf-8') as output:
             output.write(f'>{seq.id} {description}\n{seq.seq}\n')
 
-def get_seqs(multifasta):
-    '''
-    OUT: dict[genome_id] = [biopythonseq1, biopythonseq2,..]
-    '''
-    seqs = {}
-    for seq in SeqIO.parse(multifasta, 'fasta'):
-        genome_id = seq.id[seq.id.find('|')+1:seq.id.find('.', seq.id.find('|'))+2]
-        if genome_id not in seqs:
-            seqs[genome_id] = []
-        seqs[genome_id].append(seq)
-    return seqs
+def split_prots_orfs(folder):
 
-def split_prots_orfs(dtype):
-    folder = 'proteomes' if dtype == '_prot_' else 'orfeomes'
-    fasta_filename = 'proteomes.fasta' if dtype == '_prot_' else 'orfeomes.fasta'
+    def get_seqs(fasta):
+        '''
+        OUT: dict[genome_id] = [biopythonseq1, biopythonseq2,..]
+        '''
+        seqs = {}
+        for seq in SeqIO.parse(fasta, 'fasta'):
+            genome_id = seq.id[seq.id.find('|')+1:seq.id.find('.', seq.id.find('|'))+2]
+            if genome_id not in seqs:
+                seqs[genome_id] = []
+            seqs[genome_id].append(seq)
+        return seqs
+
+    dtype = '_prot_' if folder == 'proteomes' else '_cds_'
+    fasta = folder + '.fasta'
 
     if os.path.isdir(folder):
         shutil.rmtree(folder)
     os.mkdir(folder)
 
-    seqs = get_seqs(fasta_filename) #dict[genome_id] = [biopythonseq1, biopythonseq2,..]
+    seqs = get_seqs(fasta) #dict[genome_id] = [biopythonseq1, biopythonseq2,..]
     for genome_id, seq_list in seqs.items():
         with open(f'{folder}/{genome_id}.fasta', 'w', encoding='utf-8') as output:
             for seq in seq_list:
@@ -45,6 +42,6 @@ def split_prots_orfs(dtype):
                 output.write(f'>{prot_id} {genome_id} {description}\n{seq.seq}\n')
 
 def main():
-    split_genomes()
-    split_prots_orfs('_prot_')
-    split_prots_orfs('_cds_')
+    split_genomes('genomes.fasta')
+    split_prots_orfs('proteomes')
+    split_prots_orfs('orfeomes')

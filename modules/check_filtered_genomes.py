@@ -1,14 +1,14 @@
 import os
 
-def check_filtered():
-    os.chdir('filtered')
-
-    files = list(os.listdir(os.curdir))
-    return bool(files)
-
 def main():
+
+    def check_filtered():
+        if os.path.isdir('filtered'):
+            return True
+        return False
+
     os.chdir('genomes')
     filtered = check_filtered()
-    os.chdir('../..')
+    os.chdir('..')
 
     return filtered

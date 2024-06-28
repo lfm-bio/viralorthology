@@ -9,7 +9,7 @@ from classes.Args import Args
 
 def get_args():
 
-    def check_args(args):
+    def check_for_prohibited_params(args):
         '''
         checks if the user changed some prohibited parameter
         '''
@@ -50,7 +50,7 @@ def get_args():
     for software, params in args_dict.items():
         setattr(args, software.strip('-'), (' ').join(params))
 
-    check_args(args)
+    check_for_prohibited_params(args)
 
     return args
 

@@ -20,7 +20,7 @@ def makeblastdb_prot(fasta):
         time.sleep(3)
 
 def blast_filter_genomes(f1, f2):
-    os.system(f"blastn -query {f1} -db {f2} -out test -outfmt '7 delim=@ qcovs pident' {DONT_PRINT_OUTPUT}")
+    os.system(f"blastn -query {f1} -db {f2} -out blast.results -outfmt '7 delim=@ qcovs pident' {DONT_PRINT_OUTPUT}")
 
 def blastp(query_fasta, db_fasta, params = ''):
     n_cpus = get_cpu_number()

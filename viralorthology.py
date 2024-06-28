@@ -1,8 +1,7 @@
 #!/usr/bin/python3
-import os
 import sys
 import time
-from modules.split_data import main as split_data
+from modules.split_data import main as split_fastas
 from modules.orfinder import main as orfinder
 from modules.proteinortho import main as proteinortho
 from modules.make_protDB import main as make_protDB
@@ -11,7 +10,7 @@ from modules.blastp import main as blastp
 from modules.HMM import main as HMM
 from modules.clean_protDB import main as cleanDB
 from modules.rename_groups import main as rename_groups
-from modules.filter_genomes import main as filter_genomes
+from modules.filter_genomes import main as filter_similar_genomes
 from modules.HMM_clean import main as HMM_clean
 from modules.HMMVSHMM import main as HMMvsHMM
 from modules.merge_groups import main as merge_groups
@@ -51,8 +50,8 @@ def main():
     first_round = True
     while True:
         if first_round:
-            split_data()
-            filter_genomes()
+            split_fastas()
+            filter_similar_genomes()
 
         orfinder(args.orffinder)
         paralogs()
