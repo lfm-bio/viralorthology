@@ -9,8 +9,9 @@ def split_genomes(fasta):
 
     for seq in SeqIO.parse(fasta, 'fasta'):
         description = seq.description[seq.description.find(' ')+1:]
-        with open(f'genomes/{seq.id}.fasta', 'w', encoding='utf-8') as output:
-            output.write(f'>{seq.id} {description}\n{seq.seq}\n')
+        seq_id = seq.id[:seq.id.find('.')]
+        with open(f'genomes/{seq_id}.fasta', 'w', encoding='utf-8') as output:
+            output.write(f'>{seq_id} {description}\n{seq.seq}\n')
 
 def split_prots_orfs(folder):
 
@@ -20,7 +21,7 @@ def split_prots_orfs(folder):
         '''
         seqs = {}
         for seq in SeqIO.parse(fasta, 'fasta'):
-            genome_id = seq.id[seq.id.find('|')+1:seq.id.find('.', seq.id.find('|'))+2]
+            genome_id = seq.id[seq.id.find('|')+1:seq.id.find('.', seq.id.find('|'))]
             if genome_id not in seqs:
                 seqs[genome_id] = []
             seqs[genome_id].append(seq)
@@ -37,7 +38,7 @@ def split_prots_orfs(folder):
     for genome_id, seq_list in seqs.items():
         with open(f'{folder}/{genome_id}.fasta', 'w', encoding='utf-8') as output:
             for seq in seq_list:
-                prot_id = seq.id[seq.id.find(dtype)+len(dtype):seq.id.find('.', seq.id.find(dtype))+2]
+                prot_id = seq.id[seq.id.find(dtype)+len(dtype):seq.id.find('.', seq.id.find(dtype))]
                 description = seq.description[seq.description.find(' ')+1:]
                 output.write(f'>{prot_id} {genome_id} {description}\n{seq.seq}\n')
 
