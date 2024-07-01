@@ -1,24 +1,15 @@
-'''
-This script launches proteinortho and grab_proteins
-'''
 import os
 from modules import commands
 from modules.misc import get_file_list
 from modules.misc import delete_tmp_files
 
-def proteinortho(params):
-    '''
-    launches proteinortho and grab_proteins
-    '''
+def launch_proteinortho(params):
     proteomes = get_file_list()
     proteomes = (' ').join(proteomes)
     print('Running proteinortho...')
     commands.proteinortho(proteomes, params)
 
 def move_files():
-    '''
-    moves orthology groups to orthology_groups folder
-    '''
     os.mkdir('../orthology_groups')
     groups = [xfile for xfile in os.listdir(os.curdir) if xfile.find('OrthoGroup') != -1]
     for group in groups:
@@ -38,7 +29,7 @@ def main(params):
 
     os.chdir('proteomes')
 
-    proteinortho(params)
+    launch_proteinortho(params)
     move_files()
     clean_tmpfiles()
 

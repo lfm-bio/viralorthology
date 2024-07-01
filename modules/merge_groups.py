@@ -20,8 +20,9 @@ def ask_user(fastas):
             return True
         if yes_no in ['N', 'n']:
             return False
+        print('Wrong input, try again.')
 
-def submain():
+def merge_groups():
     fastas = get_file_list()
     skip = []
     for fasta in fastas:
@@ -42,6 +43,6 @@ def submain():
 def main():
     os.chdir('orthology_groups')
 
-    submain()
+    merge_groups()
 
     os.chdir('..')

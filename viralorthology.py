@@ -4,8 +4,8 @@ import time
 from modules.split_data import main as split_fastas
 from modules.orfinder import main as orfinder
 from modules.proteinortho import main as proteinortho
-from modules.make_protDB import main as make_protDB
-from modules.search_paralogs import main as paralogs
+from modules.make_protDB import main as make_protdb
+from modules.search_paralogs import main as search_paralogs
 from modules.blastp import main as blastp
 from modules.HMM import main as HMM
 from modules.clean_protDB import main as cleanDB
@@ -54,8 +54,8 @@ def main():
             filter_similar_genomes()
 
         orfinder(args.orffinder)
-        paralogs()
-        make_protDB()
+        search_paralogs()
+        make_protdb()
 
         if first_round:
             proteinortho(args.proteinortho)

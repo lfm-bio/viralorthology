@@ -6,7 +6,7 @@ from modules.misc import get_file_list
 from modules.misc import get_blastp_hits
 from modules.misc import delete_tmp_files
 
-def make_fastas_DB(seqs, proteome):
+def make_blast_dbs(seqs, proteome):
     '''
     makes blastdb with proteome and each query.fasta file
     '''
@@ -35,54 +35,55 @@ def search_paralogs(query, groups_paralogs, proteome):
         groups_paralogs.append(paralogs)
     return groups_paralogs
 
-def keep_bigger_group(groups_paralogs):
-    '''
-    deletes groups that are inside other groups
-    '''
-    to_delete = []
-
-    for n, g1 in enumerate(groups_paralogs):
-        g1 = set(g1)
-        for i, g2 in enumerate(groups_paralogs):
-            if n == i:
-                continue
-            g2 = set(g2)
-
-            if g1 == g2:
-                to_delete.append(n) #group already is in the list
-
-            if g1.issubset(g2):
-                to_delete.append(n)
-
-            if g2.issubset(g1):
-                to_delete.append(i)
-
-    if to_delete:
-        for i in sorted(set(to_delete), reverse=True): #deletes from the end so indexes dont change
-            del groups_paralogs[i]
-
-    return groups_paralogs
-
-def iteration(old):
-    '''
-    adds up groups that overlap
-    '''
-    new = []
-    first = True
-
-    while len(old) != len(new): #until nothing changes
-        if not first:
-            old = new
-        first = False
-        new = []
-        for g1 in old:
-            for g2 in old:
-                if (set(g1)).intersection(set(g2)):
-                    if sorted(set(g1+g2)) not in new:
-                        new.append(sorted(set(g1 + g2)))
-    return new
-
 def clean_groups(groups_paralogs):
+
+    def keep_bigger_group(groups_paralogs):
+        '''
+        deletes groups that are inside other groups
+        '''
+        to_delete = []
+
+        for n, g1 in enumerate(groups_paralogs):
+            g1 = set(g1)
+            for i, g2 in enumerate(groups_paralogs):
+                if n == i:
+                    continue
+                g2 = set(g2)
+
+                if g1 == g2:
+                    to_delete.append(n) #group already is in the list
+
+                if g1.issubset(g2):
+                    to_delete.append(n)
+
+                if g2.issubset(g1):
+                    to_delete.append(i)
+
+        if to_delete:
+            for i in sorted(set(to_delete), reverse=True): #deletes from the end so indexes dont change
+                del groups_paralogs[i]
+
+        return groups_paralogs
+
+    def iteration(old):
+        '''
+        adds up groups that overlap
+        '''
+        new = []
+        first = True
+
+        while len(old) != len(new): #until nothing changes
+            if not first:
+                old = new
+            first = False
+            new = []
+            for g1 in old:
+                for g2 in old:
+                    if (set(g1)).intersection(set(g2)):
+                        if sorted(set(g1+g2)) not in new:
+                            new.append(sorted(set(g1 + g2)))
+        return new
+
     final = []
     new_groups = iteration(groups_paralogs)
 
@@ -128,7 +129,7 @@ def make_new_files(proteome, prots_to_remove):
                 small_paralogs.append(seq)
                 proteins_to_remove.append(seq.id)
         output_name = f'{proteome.replace(".fasta", "")}-{big_paralog}.fasta'
-        SeqIO.write(small_paralogs, f'../paralogs/{output_name}', format='fasta-2line')
+        SeqIO.write(small_paralogs, f'../paralogs/{output_name}', format='fasta')
 
     #edits proteome
     to_new_proteome = []
@@ -136,17 +137,16 @@ def make_new_files(proteome, prots_to_remove):
         if seq.id not in proteins_to_remove:
             to_new_proteome.append(seq)
 
-    SeqIO.write(to_new_proteome, 'newproteome.fasta', format='fasta-2line')
     os.remove(proteome)
-    os.rename('newproteome.fasta', proteome)
+    SeqIO.write(to_new_proteome, proteome, format='fasta')
 
 def submain():
     proteomes = get_file_list()
-    print('Searching for paralogs')
+    print('Searching for paralogs...')
     for proteome in tqdm(proteomes):
         groups_paralogs = [] #paralogy groups that has been found [[g1], [g2],...]
         seqs = list(SeqIO.parse(proteome, 'fasta'))
-        make_fastas_DB(seqs, proteome) #makes blastdb with proteome and each protein
+        make_blast_dbs(seqs, proteome) #makes blastdb with proteome and each protein
         seqs_ids = [seq.id for seq in seqs]
 
         for seq in seqs_ids:

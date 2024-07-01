@@ -1,7 +1,3 @@
-'''
-This script launches orffinder with every genome (DNA output), sorts the seqs by length (from longer to shorter), gives an ID to every seq, 
-translates them to protein and cleans the output (removes proteins that are annotated)
-'''
 import os
 from Bio import SeqIO
 from tqdm import tqdm
@@ -63,7 +59,6 @@ def move_fastas():
     for fasta in fastas:
         os.replace(fasta, f'../proteomes/{fasta}')
 
-
 def clean_of_proteomes():
     '''
     removes from OF output prots that are already annotated (in, ==, out)
@@ -94,16 +89,7 @@ def clean_of_proteomes():
     discarted.close()
     remove_of_prots(of_prots_to_remove)
 
-# def make_protDB_ingroup():
-#     fastas = get_file_list()
-#     protDB_ingroup = open('protDB_ingroup.fasta', 'w', encoding='utf-8')
-#     for group in fastas:
-#         for seq in SeqIO.parse(group, 'fasta'):
-#             protDB_ingroup.write(seq.format('fasta-2line'))
-#     protDB_ingroup.close()
-#     commands.makeblastdb_prot('protDB_ingroup.fasta')
-
-def make_OF_db():
+def make_of_db():
     with open('../orfeomes_OF.fasta', 'a', encoding='utf-8') as of_db:
         fastas = get_file_list('.OForf')
         for fasta in fastas:
@@ -119,7 +105,7 @@ def main(params):
     launch_orfinder(params)
     sort_genes_by_len_big_to_small()
     give_id_format_seqs()
-    make_OF_db()
+    make_of_db()
     translate_orfeomes()
     move_fastas()
     os.chdir('../proteomes')

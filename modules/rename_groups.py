@@ -25,8 +25,8 @@ def get_anotations(old_group):
     return 'hypothetical-protein'
 
 def rename_files(new_names):
-    for new_name in new_names:
-        os.rename(new_names[new_name], new_name)
+    for new_name, old_name in new_names.items():
+        os.rename(old_name, new_name)
 
 def make_tmp_names():
     fastas = get_file_list()
@@ -35,11 +35,11 @@ def make_tmp_names():
 
 def rename_groups():
     make_tmp_names()
-    old_names = get_file_list()
-    old_names = get_ordered_files(old_names)
+    tmp_names = get_file_list()
+    tmp_names = get_ordered_files(tmp_names)
     new_names = {}
-    for old_group in old_names:
-        new_name = get_anotations(old_group)
+    for old_file_name in tmp_names:
+        new_name = get_anotations(old_file_name)
         if f'{new_name}.fasta' in new_names:
             n = 0
             while True:
@@ -49,7 +49,7 @@ def rename_groups():
                     new_name = tmp_name
                     break
         new_name += '.fasta'
-        new_names[new_name] = old_group
+        new_names[new_name] = old_file_name
     rename_files(new_names)
 
 def main():

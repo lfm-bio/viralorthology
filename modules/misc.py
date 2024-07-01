@@ -250,15 +250,11 @@ def get_genomes_fasta(fasta):
 def get_cpu_number():
     return multiprocessing.cpu_count()
 
-def get_ordered_files(file_list):
+def get_ordered_files(fastas):
     '''
     OUT: list with fastas from biggest to smallest
     '''
-    ordered_files = []
-    for xfile in file_list:
-        n_seqs = get_nseqs(xfile)
-        ordered_files.append((n_seqs, xfile))
-    ordered_files.sort(reverse = True)
+    ordered_files = sorted([(get_nseqs(fasta), fasta) for fasta in fastas], reverse=True)
     ordered_list = [xfile[1] for xfile in ordered_files]
     return ordered_list
 
