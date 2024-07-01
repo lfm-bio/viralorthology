@@ -3,7 +3,6 @@ from Bio import SeqIO
 from modules.misc import get_file_list
 from modules.misc import get_n_genomes
 from modules.misc import get_nseqs
-from modules.misc import get_bioseqs
 from modules.misc import get_proteinid_genomeid
 from modules.misc import fasta_to_fasta2line
 from modules.misc import delete_files
@@ -25,7 +24,7 @@ def get_orfs():
     '''
     OUT: {genome_id: [orf1_bioseq, orf2_bioseq,...]}
     '''
-    orfs = get_bioseqs('../orfeomes.fasta')
+    orfs = list(SeqIO.parse('../orfeomes.fasta', 'fasta'))
     orfs_per_genome = {}
     for seq in orfs:
         genome = seq.id[seq.id.find('|')+1:seq.id.find('.', seq.id.find('|'))+2]
@@ -34,7 +33,7 @@ def get_orfs():
         else:
             orfs_per_genome[genome].append(seq)
 
-    orfs_OF = get_bioseqs('../orfeomes_OF.fasta')
+    orfs_OF = list(SeqIO.parse('../orfeomes_OF.fasta', 'fasta'))
     for seq in orfs_OF:
         genome = seq.description.split()[1]
         if genome not in orfs_per_genome:

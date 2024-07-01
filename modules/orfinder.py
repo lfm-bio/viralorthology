@@ -7,129 +7,122 @@ from Bio import SeqIO
 from tqdm import tqdm
 from modules import commands
 from modules.misc import get_file_list
-from modules.misc import sort_bioseqs_b_to_s
-from modules.misc import get_bioseqs
 
 def launch_orfinder(params):
     genomes = get_file_list()
     params = '-outfmt 1 ' + params # outfmt = DNA
-    print('Running ORFfinder')
+    print('Running ORFfinder...')
     for genome in tqdm(genomes):
         file_in, file_out = genome, genome.replace('.fasta', '.OForf')
         commands.run_orfinder(file_in, file_out, params)
 
-def sort_genes_by_len():
-    '''
-    sorts seqs from bigger to smaller
-    '''
+def sort_genes_by_len_big_to_small():
     orfeomes = get_file_list('.OForf')
     for orfeome in orfeomes:
-        genes = get_bioseqs(orfeome)
-        genes = sort_bioseqs_b_to_s(genes)
-        tmp_name = orfeome + '_tmp'
-        SeqIO.write(genes, tmp_name, 'fasta-2line')
+        genes = list(SeqIO.parse(orfeome, 'fasta'))
+        genes.sort(key=lambda seq: len(seq.seq), reverse=True)
+        SeqIO.write(genes, 'tmp', 'fasta')
         os.remove(orfeome)
-        os.rename(tmp_name, orfeome)
+        os.rename('tmp', orfeome)
 
-def get_ID(seq, n):
-    ID = f'ORFINDER{n} '
-    ID = seq.id[:seq.id.find(':')].replace('lcl|', ID)
-    return ID
+def give_id_format_seqs():
 
-def edit_orfeomes():
-    '''
-    gives ID and format to every seq
-    '''
+    def get_id(seq, n):
+        id_ = f'ORFINDER{n} '
+        id_ = seq.id[:seq.id.find(':')].replace('lcl|', id_)
+        return id_
+
     orfeomes = get_file_list('.OForf')
     n = 0
     for orfeome in orfeomes:
-        tmp_name = orfeome + '_tmp'
-        output = open(tmp_name, 'w', encoding='utf-8')
-        for seq in SeqIO.parse(orfeome, 'fasta'):
-            n += 1
-            ID = get_ID(seq, n)
-            position = seq.id[seq.id.find(':')+1:]
-            position = ('..').join(position.split('-'))
-            if position.startswith('c'):
-                position = f'complement({position[1:]})'
-            output.write(f'>{ID} [location={position}]\n{seq.seq}\n')
-        output.close()
-        os.remove(orfeome)
-        os.rename(tmp_name, orfeome)
-
-def translate():
-    orfeomes = get_file_list('.OForf')
-    for orfeome in orfeomes:
-        prot_fasta = orfeome.replace('.OForf', '.OFprot')
-        with open(prot_fasta, 'w', encoding='utf-8') as output:
+        with open('tmp', 'w', encoding='utf-8') as output:
             for seq in SeqIO.parse(orfeome, 'fasta'):
+                n += 1
+                id_ = get_id(seq, n)
+                position = seq.id[seq.id.find(':')+1:]
+                position = ('..').join(position.split('-'))
+                if position.startswith('c'):
+                    position = f'complement({position[1:]})'
+                output.write(f'>{id_} [location={position}]\n{seq.seq}\n')
+        os.remove(orfeome)
+        os.rename('tmp', orfeome)
+
+def translate_orfeomes():
+    fastas = get_file_list('.OForf')
+    for fasta in fastas:
+        prot_fasta = fasta.replace('.OForf', '.OFprot')
+        with open(prot_fasta, 'w', encoding='utf-8') as output:
+            for seq in SeqIO.parse(fasta, 'fasta'):
                 output.write(f'>{seq.description}\n{seq.seq.translate(stop_symbol="")}\n')
 
 def move_fastas():
-    files = get_file_list('.OForf')
-    for xfile in files:
-        os.replace(xfile, f'../orfeomes/{xfile}')
-    files = get_file_list('.OFprot')
-    for xfile in files:
-        os.replace(xfile, f'../proteomes/{xfile}')
+    fastas = get_file_list('.OForf')
+    for fasta in fastas:
+        os.replace(fasta, f'../orfeomes/{fasta}')
+    fastas = get_file_list('.OFprot')
+    for fasta in fastas:
+        os.replace(fasta, f'../proteomes/{fasta}')
 
-def delete_seqs(OFprots_to_remove):
-    of_files = get_file_list('.OFprot')
-    for xfile in of_files:
-        tmp_name = xfile + '_tmp'
-        output = open(tmp_name, 'w', encoding='utf-8')
-        for seq in SeqIO.parse(xfile, 'fasta'):
-            if seq.id not in OFprots_to_remove:
-                output.write(seq.format('fasta-2line'))
-        output.close()
-        os.remove(xfile)
-        os.rename(tmp_name, xfile)
 
-def clean_OFfiles():
+def clean_of_proteomes():
     '''
     removes from OF output prots that are already annotated (in, ==, out)
     '''
-    print('Cleaning ORFfinder output...')
-    OFprots_to_remove = []
+
+    def remove_of_prots(prots_to_remove):
+        fastas = get_file_list('.OFprot')
+        for fasta in fastas:
+            with open('tmp', 'w', encoding='utf-8') as output:
+                for seq in SeqIO.parse(fasta, 'fasta'):
+                    if seq.id not in prots_to_remove:
+                        output.write(seq.format('fasta-2line'))
+            os.remove(fasta)
+            os.rename('tmp', fasta)
+
+    of_prots_to_remove = []
     of_files = get_file_list('.OFprot')
     discarted = open('discarted.OF', 'w', encoding='utf-8')
+    print('Cleaning ORFfinder output...')
     for of_file in tqdm(of_files):
-        anotated_fasta = of_file.replace('.OFprot', '.fasta')
-        for seqOF in SeqIO.parse(of_file, 'fasta'):
-            for seqAN in SeqIO.parse(anotated_fasta, 'fasta'):
-                if seqOF.seq in seqAN.seq or seqOF.seq == seqAN.seq or seqAN.seq in seqOF.seq:
-                    OFprots_to_remove.append(seqOF.id)
-                    discarted.write(seqOF.format('fasta-2line'))
+        annotated_fasta = of_file.replace('.OFprot', '.fasta')
+        for of_seq in SeqIO.parse(of_file, 'fasta'):
+            for ann_seq in SeqIO.parse(annotated_fasta, 'fasta'):
+                if of_seq.seq in ann_seq.seq or of_seq.seq == ann_seq.seq or ann_seq.seq in of_seq.seq:
+                    of_prots_to_remove.append(of_seq.id)
+                    discarted.write(of_seq.format('fasta'))
                     break
     discarted.close()
-    delete_seqs(OFprots_to_remove)
+    remove_of_prots(of_prots_to_remove)
 
-def make_protDB_ingroup():
-    fastas = get_file_list()
-    protDB_ingroup = open('protDB_ingroup.fasta', 'w', encoding='utf-8')
-    for group in fastas:
-        for seq in SeqIO.parse(group, 'fasta'):
-            protDB_ingroup.write(seq.format('fasta-2line'))
-    protDB_ingroup.close()
-    commands.makeblastdb_prot('protDB_ingroup.fasta')
+# def make_protDB_ingroup():
+#     fastas = get_file_list()
+#     protDB_ingroup = open('protDB_ingroup.fasta', 'w', encoding='utf-8')
+#     for group in fastas:
+#         for seq in SeqIO.parse(group, 'fasta'):
+#             protDB_ingroup.write(seq.format('fasta-2line'))
+#     protDB_ingroup.close()
+#     commands.makeblastdb_prot('protDB_ingroup.fasta')
 
 def make_OF_db():
-    with open('../orfeomes_OF.fasta', 'a', encoding='utf-8') as OF_db:
-        OF_orfs = get_file_list('.OForf')
-        for OFfile in OF_orfs:
-            for seq in SeqIO.parse(OFfile, 'fasta'):
-                OF_db.write(seq.format('fasta-2line'))
+    with open('../orfeomes_OF.fasta', 'a', encoding='utf-8') as of_db:
+        fastas = get_file_list('.OForf')
+        for fasta in fastas:
+            for seq in SeqIO.parse(fasta, 'fasta'):
+                of_db.write(seq.format('fasta'))
 
-def main(params = '-ml 90 -s 0'):
+def main(params):
+    if not params:
+        params = '-ml 90 -s 0'
+
     os.chdir('genomes')
 
     launch_orfinder(params)
-    sort_genes_by_len()
-    edit_orfeomes()
+    sort_genes_by_len_big_to_small()
+    give_id_format_seqs()
     make_OF_db()
-    translate()
+    translate_orfeomes()
     move_fastas()
     os.chdir('../proteomes')
-    clean_OFfiles()
+    clean_of_proteomes()
 
     os.chdir('..')

@@ -4,7 +4,6 @@ from tqdm import tqdm
 from modules import commands
 from modules.misc import get_file_list
 from modules.misc import get_blastp_hits
-from modules.misc import get_bioseqs
 from modules.misc import delete_tmp_files
 
 def make_fastas_DB(seqs, proteome):
@@ -13,7 +12,7 @@ def make_fastas_DB(seqs, proteome):
     '''
     commands.makeblastdb_prot(proteome)
     for seq in seqs:
-        SeqIO.write(seq, f'{seq.id}.fasta', format='fasta-2line')
+        SeqIO.write(seq, f'{seq.id}.fasta', format='fasta')
         fasta = f'{seq.id}.fasta'
         commands.makeblastdb_prot(fasta)
 
@@ -146,7 +145,7 @@ def submain():
     print('Searching for paralogs')
     for proteome in tqdm(proteomes):
         groups_paralogs = [] #paralogy groups that has been found [[g1], [g2],...]
-        seqs = get_bioseqs(proteome) #seqs (biopython)
+        seqs = list(SeqIO.parse(proteome, 'fasta'))
         make_fastas_DB(seqs, proteome) #makes blastdb with proteome and each protein
         seqs_ids = [seq.id for seq in seqs]
 
@@ -166,6 +165,6 @@ def main():
     os.chdir('proteomes')
 
     submain()
-    delete_tmp_files(['.phr', '.pin', '.psq'])
+    delete_tmp_files(['.phr', '.pin', '.psq', '.pdb', '.pot', '.ptf', '.pto'])
 
     os.chdir('..')

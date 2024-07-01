@@ -57,7 +57,7 @@ def get_args():
 def combine_fastas(fasta_list, new_fasta_name, file_format = 'fasta-2line'):
     bioseqs = []
     for fasta in fasta_list:
-        bioseqs += get_bioseqs(fasta)
+        bioseqs += SeqIO.parse(fasta, 'fasta')
     delete_files(fasta_list)
     SeqIO.write(bioseqs, new_fasta_name, format=file_format)
 
@@ -160,13 +160,13 @@ def search_with_hmm(HMM, db_path, params):
     commands.search_hmm(search_hmm, params, HMM, db_path)
     return search_hmm
 
-def get_bioseqs(fasta):
-    bioseqs = list(SeqIO.parse(fasta, 'fasta'))
-    return bioseqs
+# def get_bioseqs(fasta):
+#     bioseqs = list(SeqIO.parse(fasta, 'fasta'))
+#     return bioseqs
 
-def sort_bioseqs_b_to_s(bioseqs):
-    bioseqs.sort(key=lambda seq: len(seq.seq), reverse=True)
-    return bioseqs
+# def sort_bioseqs_b_to_s(bioseqs):
+#     bioseqs.sort(key=lambda seq: len(seq.seq), reverse=True)
+#     return bioseqs
 
 def get_file_list(file_ext = '.fasta'):
     files = [xfile for xfile in os.listdir(os.curdir) if xfile.endswith(file_ext)]

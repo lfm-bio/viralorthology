@@ -44,6 +44,10 @@ def proteinortho(proteomes, params):
         subprocess.check_call(f'proteinortho {proteomes} {params}'.split(), stdout=devnull, stderr=subprocess.STDOUT)
     with open(os.devnull, 'wb') as devnull:
         subprocess.check_call(f'po_grab_proteins -tofiles myproject.proteinortho.tsv -exact {proteomes}'.split(), stdout=devnull, stderr=subprocess.STDOUT)
+    # print(proteomes)
+    # quit()
+    # os.system(f'proteinortho {proteomes} {params}')
+    # os.system(f'po_grab_proteins -tofiles myproject.proteinortho.tsv -exact {proteomes}')
 
 def align_muscle(fasta, aligned_fasta):
     with open(os.devnull, 'wb') as devnull:
