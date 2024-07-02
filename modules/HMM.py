@@ -1,9 +1,3 @@
-'''
-This script aligns a fasta (MUSCLE), makes the HMM (HMMER), searches in protDB using the HMM.
-only adds the proteins from genomes that dont already have a protein in that orthology group
-deletes the added seqs from protDB
-if CHECK, the scrips only works with the fastas that added sequences from the first step
-'''
 import os
 from Bio import SeqIO
 from tqdm import tqdm
@@ -44,63 +38,33 @@ def get_hits_hmmsearch(fasta):
 
 def get_new_genes(fasta):
     '''
-    OUT: list of genes to add to the ortology group
-    checks theres not another gene from the same genome in that ortology group
+    OUT: list of genes to add to the orthology group
+    checks theres not another gene from the same genome in that orthology group
     '''
     hits = get_hits_hmmsearch(fasta) #dict[genome] = gene
     genomes_fasta = get_genomes_fasta(fasta)
-    new_genes = []
-
-    for genome, hit in hits.items():
-        if genome not in genomes_fasta: #only if theres not another gene from the same genome
-            new_genes.append(hit)
+    new_genes = [hit for genome, hit in hits.items() if genome not in genomes_fasta]
 
     return new_genes
 
 def add_new_genes(fasta, new_genes):
-    '''
-    adds newly found genes to the ortology group
-    '''
-    with open(fasta, 'a', encoding='utf-8') as fasta:
+    with open(fasta, 'a', encoding='utf-8') as fasta_handle:
         for gene in SeqIO.parse('../protDB.db', 'fasta'):
             if gene.id in new_genes:
-                fasta.write(gene.format('fasta-2line'))
+                fasta_handle.write(gene.format('fasta'))
 
 def align_build_search(fasta, search_params = ''):
     align_fasta_muscle(fasta)
     make_hmm_hammer(fasta)
     search_with_hmm(fasta, '../protDB.db', search_params)
 
-def check_added_seqs(fasta):
-    '''
-    OUT: True if seqs were added since last HMM
-    '''
-    n_seqs_file = open('../n_seqs_groups.csv', encoding='utf-8')
-    run_hmm = False
-    for line in n_seqs_file:
-        line = line.strip().split(',')
-        if line[0] == fasta and line[1] == '2-HMM':
-            first_hmm_n_seqs = int(line[2])
-            continue
-        if line[0] == fasta and line[1] == '3-Blastp':
-            if int(line[2]) > first_hmm_n_seqs:
-                run_hmm = True
-            break
-    n_seqs_file.close()
-    return run_hmm
-
-def hmm(check, search_params):
+def hmm(search_params):
     prot_db_path = '../protDB.db'
     fastas = get_file_list()
     fastas = get_ordered_files(fastas)
     n_genomes = get_n_genomes()
     print('Searching for new genes with HMM...')
     for fasta in tqdm(fastas):
-        if check:
-            run_hmm = check_added_seqs(fasta) # checks if new seqs were added since first hmm
-            if not run_hmm:
-                continue
-
         while True:
             n_genes = get_nseqs(fasta)
             if n_genes == n_genomes: #if the group already has one protein per genome
@@ -114,10 +78,10 @@ def hmm(check, search_params):
             else: #no new proteins found
                 break
 
-def main(search_params, check = False):
+def main(search_params):
     os.chdir('orthology_groups')
 
-    hmm(check, search_params)
+    hmm(search_params)
     delete_tmp_files(['.hmmbuild', '.hmmsearch', '.muscle'])
 
     os.chdir('..')

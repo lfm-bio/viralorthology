@@ -12,7 +12,7 @@ from modules.misc import add_bioseq_to_fasta
 from modules.misc import check_ortology_group
 from modules.misc import delete_tmp_files
 
-def make_db_protsInGroup():
+def make_db_protsingroup():
     '''
     makes protDB_ingroup.fasta and makeblastdb
     every seq has the description: >groupname.fasta for easier later use
@@ -50,18 +50,20 @@ def add_seqs(hits_all):
             if add_to_fasta:
                 add_bioseq_to_fasta(seq, fasta)
                 prots_to_remove.append(seq.id)
+                if os.path.isfile(fasta.replace('.fasta', '.muscle')):
+                    os.remove(fasta.replace('.fasta', '.muscle'))
     return prots_to_remove
 
 def submain(params, protDB):
     protDB = f'../{protDB}'
-    protDB_nseqs = get_nseqs(protDB) #just to calculate the % of the process
+    prot_db_nseqs = get_nseqs(protDB) #just to calculate the % of the process
     hits_all = {}
     for n, query in enumerate(SeqIO.parse(protDB, 'fasta')):
-        print(f'\r{round((n+1)/protDB_nseqs*100, 1)}% - Blasting {query.id}', end='')
+        print(f'\r{round((n+1)/prot_db_nseqs*100, 1)}% - Blasting {query.id}', end='')
         query_genome = get_genome_bioseq(query)
         if query_genome not in hits_all:
             hits_all[query_genome] = {} #dict[genome] = dict[fasta] = (evalue, query)
-        SeqIO.write(query, 'seq.query', 'fasta-2line')
+        SeqIO.write(query, 'seq.query', 'fasta')
         best_hit = run_read_blastp(params)
         if best_hit:
             evalue, fasta = best_hit
@@ -72,14 +74,14 @@ def submain(params, protDB):
     clean_protDB(prots_to_remove, protDB)
     print() # final \n
 
-def main(protDB, params = '-word_size 2'):
+def main(prot_db, params = '-word_size 2'):
     if '-word_size' not in params:
         params += ' -word_size 2'
 
     os.chdir('orthology_groups')
 
-    make_db_protsInGroup() #db with all the grouped genes
-    submain(params, protDB)
+    make_db_protsingroup() #db with all the grouped genes
+    submain(params, prot_db)
     delete_tmp_files(['.phr', '.pin', '.psq'])
     os.remove('protDB_ingroup.fasta')
 

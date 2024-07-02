@@ -8,7 +8,7 @@ from modules.make_protDB import main as make_protdb
 from modules.search_paralogs import main as search_paralogs
 from modules.blastp import main as blastp
 from modules.HMM import main as HMM
-from modules.clean_protDB import main as cleanDB
+from modules.clean_protDB import main as clean_prot_db
 from modules.rename_groups import main as rename_groups
 from modules.filter_genomes import main as filter_similar_genomes
 from modules.HMM_clean import main as HMM_clean
@@ -21,7 +21,6 @@ from modules.download_seqs import main as download_seqs
 from modules.check_dependencies import main as check_dependencies
 from modules.kimura import main as kimura
 from modules.misc import merge_protDBs
-from modules.misc import make_nseq_report
 from modules.misc import delete_tmp_files_final
 from modules.misc import get_args
 from modules.misc import delete_final_files
@@ -63,18 +62,12 @@ def main():
             merge_groups()
             HMM_clean()
             HMMvsHMM()
-            cleanDB()
-            make_nseq_report('1-ProteinOrtho')
+            clean_prot_db()
 
         HMM(args.HMMsearch)
-        make_nseq_report('2-HMM')
-
         blastp('protDB.db', args.blastp)
         blastp('protDB_OF.db', args.blastp)
-        make_nseq_report('3-Blastp')
-
-        HMM(args.HMMsearch, True)
-        make_nseq_report('4-HMM')
+        HMM(args.HMMsearch)
 
         rename_groups()
         merge_groups()

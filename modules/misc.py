@@ -54,7 +54,7 @@ def get_args():
 
     return args
 
-def combine_fastas(fasta_list, new_fasta_name, file_format = 'fasta-2line'):
+def combine_fastas(fasta_list, new_fasta_name, file_format = 'fasta'):
     bioseqs = []
     for fasta in fasta_list:
         bioseqs += SeqIO.parse(fasta, 'fasta')
@@ -101,7 +101,7 @@ def check_ortology_group(query_genome, fasta): # this is ugly
 
 def add_bioseq_to_fasta(bioseq, fasta):
     with open(fasta, 'a', encoding='utf-8') as fasta:
-        fasta.write(bioseq.format('fasta-2line'))
+        fasta.write(bioseq.format('fasta'))
 
 def get_blastp_hits():
     '''
@@ -165,13 +165,13 @@ def get_file_list(file_ext = '.fasta'):
 
 def clean_protDB(prots_to_remove, protDB_path):
     '''
-    removes genes added to a ortology group from protDB
+    removes genes added to a orthology group from protDB
     '''
     tmp_name = protDB_path + '_tmp'
     with open(tmp_name, 'w', encoding='utf-8') as new_protDB:
         for gene in SeqIO.parse(protDB_path, 'fasta'):
             if gene.id not in prots_to_remove:
-                new_protDB.write(gene.format('fasta-2line'))
+                new_protDB.write(gene.format('fasta'))
 
     os.remove(protDB_path)
     os.rename(tmp_name, protDB_path)
@@ -227,12 +227,12 @@ def get_genomes_fasta(fasta):
     '''
     OUT: list with the IDs of the genomes which have a protein in the group
     '''
-    with open(fasta, encoding='utf-8') as fasta:
-        genomes_fasta = []
-        for line in fasta:
+    genomes_fasta = []
+    with open(fasta, encoding='utf-8') as fasta_handle:
+        for line in fasta_handle:
             if line.startswith('>'):
-                genome = line.split()[1]
-                genomes_fasta.append(genome)
+                genome_id = line.split()[1]
+                genomes_fasta.append(genome_id)
     return genomes_fasta
 
 def get_cpu_number():
@@ -283,7 +283,6 @@ def delete_final_files():
     os.system('rm -r genomes')
     os.system('rm -r orfeomes')
     os.system('rm -r proteomes')
-    os.remove('n_seqs_groups.csv')
     if os.path.exists('first-round-n_seqs_groups.csv'):
         os.remove('first-round-n_seqs_groups.csv')
     os.remove('protDB_OF.db')

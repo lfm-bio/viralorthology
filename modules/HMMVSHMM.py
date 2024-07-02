@@ -6,7 +6,7 @@ from modules.misc import get_n_genomes
 from modules.misc import get_nseqs
 from modules.misc import get_genomes_fasta
 from modules.misc import get_file_list
-from modules.blastp import make_db_protsInGroup
+from modules.blastp import make_db_protsingroup
 from modules.misc import get_first_bioseq_fasta
 from modules.misc import get_blastp_hits
 from modules.misc import delete_tmp_files
@@ -87,7 +87,7 @@ def combine_groups(compatible_groups):
 
 def hmmvshmm():
     align_buildhmm()
-    make_db_protsInGroup()
+    make_db_protsingroup()
     compatible_groups = get_compatible_groups()
     combine_groups(compatible_groups)
 
