@@ -53,11 +53,11 @@ def align_muscle(fasta, aligned_fasta):
     with open(os.devnull, 'wb') as devnull:
         subprocess.check_call(f'muscle -align {fasta} -output {aligned_fasta}'.split(), stdout=devnull, stderr=subprocess.STDOUT)
 
-def build_hmm(HMM, aligned_fasta):
-    os.system(f'hmmbuild {HMM} {aligned_fasta} {DONT_PRINT_OUTPUT}')
+def build_hmm(hmm, aligned_fasta):
+    os.system(f'hmmbuild {hmm} {aligned_fasta} {DONT_PRINT_OUTPUT}')
 
-def search_hmm(search_hmm, params, HMM, db_path):
-    os.system(f'hmmsearch -o {search_hmm} {params} {HMM} {db_path} {DONT_PRINT_OUTPUT}')
+def search_hmm(search_hmm, params, hmm, db_path):
+    os.system(f'hmmsearch -o {search_hmm} {params} {hmm} {db_path} {DONT_PRINT_OUTPUT}')
 
 def run_orfinder(file_in, file_out, params):
     os.system(f'ORFfinder -in {file_in} -out {file_out} {params} {DONT_PRINT_OUTPUT}')

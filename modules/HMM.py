@@ -18,13 +18,13 @@ from modules.misc import make_hmm_hammer
 from modules.misc import search_with_hmm
 from modules.misc import delete_tmp_files
 
-def get_hits_hmmsearch(hmmsearch):
+def get_hits_hmmsearch(fasta):
     '''
     OUT: dict with the genes gave a hit (only the best hit per genome)
     dict[genome] = gene
     '''
     genes = {}
-    hmmsearch_report = open(hmmsearch, encoding='utf-8')
+    hmmsearch_report = open(fasta.replace('.fasta', '.hmmsearch'), encoding='utf-8')
     read = False
     for line in hmmsearch_report:
         if line.strip().startswith('E-value  score  bias'):
@@ -42,12 +42,12 @@ def get_hits_hmmsearch(hmmsearch):
     hmmsearch_report.close()
     return genes
 
-def get_new_genes(fasta, output_hmmsearch):
+def get_new_genes(fasta):
     '''
     OUT: list of genes to add to the ortology group
     checks theres not another gene from the same genome in that ortology group
     '''
-    hits = get_hits_hmmsearch(output_hmmsearch) #dict[genome] = gene
+    hits = get_hits_hmmsearch(fasta) #dict[genome] = gene
     genomes_fasta = get_genomes_fasta(fasta)
     new_genes = []
 
@@ -67,14 +67,9 @@ def add_new_genes(fasta, new_genes):
                 fasta.write(gene.format('fasta-2line'))
 
 def align_build_search(fasta, search_params = ''):
-    '''
-    OUT: hmmsearch output file name
-    '''
-    aligned_fasta = align_fasta_muscle(fasta)
-    HMM = make_hmm_hammer(aligned_fasta)
-    search_report = search_with_hmm(HMM, '../protDB.db', search_params)
-
-    return search_report
+    align_fasta_muscle(fasta)
+    make_hmm_hammer(fasta)
+    search_with_hmm(fasta, '../protDB.db', search_params)
 
 def check_added_seqs(fasta):
     '''
@@ -95,7 +90,7 @@ def check_added_seqs(fasta):
     return run_hmm
 
 def hmm(check, search_params):
-    protDB_path = '../protDB.db'
+    prot_db_path = '../protDB.db'
     fastas = get_file_list()
     fastas = get_ordered_files(fastas)
     n_genomes = get_n_genomes()
@@ -110,11 +105,11 @@ def hmm(check, search_params):
             n_genes = get_nseqs(fasta)
             if n_genes == n_genomes: #if the group already has one protein per genome
                 break
-            output_hmmsearch = align_build_search(fasta, search_params)
-            new_genes = get_new_genes(fasta, output_hmmsearch)
+            align_build_search(fasta, search_params)
+            new_genes = get_new_genes(fasta)
             if new_genes:
                 add_new_genes(fasta, new_genes)
-                clean_protDB(new_genes, protDB_path)
+                clean_protDB(new_genes, prot_db_path)
                 os.remove(fasta.replace('.fasta', '.muscle')) #so it has to align the fasta again the next iteration
             else: #no new proteins found
                 break

@@ -136,29 +136,19 @@ def get_genome_bioseq(seq):
     return genome
 
 def align_fasta_muscle(fasta):
-    '''
-    OUT: aligned fasta file name
-    '''
     aligned_fasta = fasta.replace('.fasta', '.muscle')
     if not os.path.isfile(aligned_fasta):
         commands.align_muscle(fasta, aligned_fasta)
-    return aligned_fasta
 
-def make_hmm_hammer(aligned_fasta):
-    '''
-    OUT: hmm file name
-    '''
-    HMM = aligned_fasta.replace('.muscle', '.hmmbuild')
-    commands.build_hmm(HMM, aligned_fasta)
-    return HMM
+def make_hmm_hammer(fasta):
+    aligned_fasta = fasta.replace('.fasta', '.muscle')
+    hmm = fasta.replace('.fasta', '.hmmbuild')
+    commands.build_hmm(hmm, aligned_fasta)
 
-def search_with_hmm(HMM, db_path, params):
-    '''
-    OUT: hmm search report file name
-    '''
-    search_hmm = HMM.replace('.hmmbuild', '.hmmsearch')
-    commands.search_hmm(search_hmm, params, HMM, db_path)
-    return search_hmm
+def search_with_hmm(fasta, db_path, params):
+    hmm = fasta.replace('.fasta', '.hmmbuild')
+    search_hmm = fasta.replace('.fasta', '.hmmsearch')
+    commands.search_hmm(search_hmm, params, hmm, db_path)
 
 # def get_bioseqs(fasta):
 #     bioseqs = list(SeqIO.parse(fasta, 'fasta'))
@@ -190,12 +180,10 @@ def get_nseqs(fasta):
     '''
     OUT: number of seqs in fasta file
     '''
-    with open(fasta, encoding='utf-8') as fasta:
-        n = 0
-        for line in fasta:
-            if line.startswith('>'):
-                n += 1
-    return n
+    if os.path.isfile(fasta):
+        n_seqs = len(list(SeqIO.parse(fasta, 'fasta')))
+        return n_seqs
+    return 0
 
 def get_proteinid_genomeid(fasta):
     '''

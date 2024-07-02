@@ -20,12 +20,12 @@ def make_db_protsInGroup():
     fastas = get_file_list()
     fastas = get_ordered_files(fastas)
     n_genomes = get_n_genomes()
-    with open('protDB_ingroup.fasta', 'w', encoding='utf-8') as protDB_ingroup:
+    with open('protDB_ingroup.fasta', 'w', encoding='utf-8') as prot_db_ingroup:
         for group in fastas:
             n_genes = get_nseqs(group)
             if n_genes < n_genomes: #only adds prots from groups that are not full
                 for seq in SeqIO.parse(group, 'fasta'):
-                    protDB_ingroup.write(f'>{group}\n{seq.seq}\n')
+                    prot_db_ingroup.write(f'>{group}\n{seq.seq}\n')
     commands.makeblastdb_prot('protDB_ingroup.fasta')
 
 def run_read_blastp(params):

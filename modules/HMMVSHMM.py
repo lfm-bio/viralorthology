@@ -23,28 +23,27 @@ def align_buildhmm():
         n_genes = get_nseqs(fasta)
         if n_genomes == n_genes:
             continue
+        align_fasta_muscle(fasta)
         output_a2m = fasta.replace('.fasta', '.a2m')
-        output_muscle = align_fasta_muscle(fasta)
-        commands.fasta_to_a2m(output_muscle, output_a2m)
+        commands.fasta_to_a2m(fasta.replace('.fasta', '.muscle'), output_a2m)
         commands.hmm_make(output_a2m, n_genomes)
         os.remove(output_a2m)
 
 def get_hmmvshmm_score(g1, g2):
     report = f'{g1}-{g2}'
     commands.hmm_align(g1, g2, report)
-    report_op = open(report, encoding='utf-8')
-    score = 0
-    for line in report_op:
-        if line.strip().startswith('Probab='):
-            score = float(line.strip().split()[0].split('=')[1])
-            break
-    report_op.close()
+    with open(report, encoding='utf-8') as report_op:
+        score = 0
+        for line in report_op:
+            if line.strip().startswith('Probab='):
+                score = float(line.strip().split()[0].split('=')[1])
+                break
     os.remove(report)
     return score
 
 def run_read_blastp(fasta):
     first_seq = get_first_bioseq_fasta(fasta)
-    SeqIO.write(first_seq, 'query.fasta', 'fasta-2line')
+    SeqIO.write(first_seq, 'query.fasta', 'fasta')
     commands.blastp('query.fasta', 'protDB_ingroup.fasta', '-evalue 10 -word_size 2')
     os.remove('query.fasta')
     hits = get_blastp_hits()
@@ -55,7 +54,7 @@ def get_compatible_groups():
     hmms = get_file_list('.hhm')
     final_groups = []
     already_checked = []
-    print('Comparing HMMs')
+    print('Comparing HMMs...')
     for g1 in tqdm(hmms):
         if g1 in already_checked:
             continue
@@ -84,7 +83,7 @@ def combine_groups(compatible_groups):
             genomes += get_genomes_fasta(fasta)
         if len(genomes) == len(set(genomes)): #no repetead genomes, combine groups
             combine_fastas(group, group[0])
-            delete_files([xfile.replace('.fasta', '.muscle') for xfile in group])
+            delete_files([fasta.replace('.fasta', '.muscle') for fasta in group])
 
 def hmmvshmm():
     align_buildhmm()

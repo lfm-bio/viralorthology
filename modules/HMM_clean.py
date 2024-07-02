@@ -1,7 +1,3 @@
-'''
-This script removes the proteins that are not found using the HMM made with the orthology group
-if the final group has less than 2 seqs, the group is deleted
-'''
 import os
 from Bio import SeqIO
 from tqdm import tqdm
@@ -10,41 +6,32 @@ from modules.HMM import align_build_search
 from modules.misc import delete_tmp_files
 from modules.misc import get_file_list
 from modules.misc import get_ordered_files
+from modules.misc import get_nseqs
 
-def remake_group(group, hits):
-    '''
-    OUT: True if the group has been modified (-> delete .muscle)
-    else False: we will use the same .muscle in HMMvsHMM
-    '''
-    tmp_file = open('temp', 'w', encoding='utf-8')
-    n_seqs = 0
-    delete_muscle = False
-    for seq in SeqIO.parse(group, 'fasta'):
-        if seq.id in hits:
-            tmp_file.write(seq.format('fasta-2line'))
-            n_seqs += 1
-        else: #delete seq from group -> align again to HMMvsHMM
-            delete_muscle = True
-    tmp_file.close()
+def remake_group(fasta, hits):
+    with open('tmp', 'w', encoding='utf-8') as tmp_file:
+        for seq in SeqIO.parse(fasta, 'fasta'):
+            if seq.id in hits:
+                tmp_file.write(seq.format('fasta'))
 
-    os.remove(group)
-    if n_seqs < 2: #group with only one seq
-        os.remove('temp')
+    os.remove(fasta)
+    if get_nseqs('tmp') < 2: #group with only one seq
+        os.remove('tmp')
     else:
-        os.rename('temp', group)
-
-    return delete_muscle
+        os.rename('tmp', fasta)
 
 def clean_groups():
-    groups = get_file_list()
-    groups = get_ordered_files(groups)
-    print('Cleaning groups')
-    for group in tqdm(groups):
-        results = align_build_search(group)
-        hits = list(get_hits_hmmsearch(results).values())
-        groups_been_modified = remake_group(group, hits)
-        if groups_been_modified: #the groups has been modified, align again to hmmvshmm
-            os.remove(group.replace('.fasta', '.muscle'))
+    fastas = get_file_list()
+    fastas = get_ordered_files(fastas)
+    print('Cleaning groups...')
+    for fasta in tqdm(fastas):
+        intial_nseqs = get_nseqs(fasta)
+        align_build_search(fasta)
+        hits = list(get_hits_hmmsearch(fasta).values())
+        remake_group(fasta, hits)
+        final_nseqs = get_nseqs(fasta)
+        if intial_nseqs != final_nseqs: #the groups has been modified, align again to hmmvshmm
+            os.remove(fasta.replace('.fasta', '.muscle'))
 
 def main():
     os.chdir('orthology_groups')
