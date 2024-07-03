@@ -42,16 +42,16 @@ def blastp_with_orthology_group(conserved_window, gene_found, synteny_window, or
                     return False
         return True
 
-    group_DB = [group for group in conserved_window if group != gene_found][0] + '.fasta'
-    makeblastdb_prot(group_DB)
+    group_db = [group for group in conserved_window if group != gene_found][0] + '.fasta'
+    makeblastdb_prot(group_db)
     querys = [gene for gene in synteny_window if gene not in ortho_groups]
     for query in querys:
         seq = get_unique_gene_bioseq_by_id(query)
         SeqIO.write(seq, 'query.fasta', 'fasta')
-        blastp('query.fasta', group_DB)
+        blastp('query.fasta', group_db)
         if blastp_hit():
-            with open(group_DB, 'a', encoding='utf-8') as fasta:
-                fasta.write(seq.format('fasta-2line'))
+            with open(group_db, 'a', encoding='utf-8') as fasta:
+                fasta.write(seq.format('fasta'))
         delete_tmp_files(['.pdb', '.phr', '.pin', '.pot', '.psq', '.ptf', '.pto'])
         os.remove('blastp.results')
         os.remove('query.fasta')
