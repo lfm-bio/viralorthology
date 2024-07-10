@@ -131,7 +131,7 @@ def get_blastp_hits():
     os.remove('blastp.results')
     return hits
 
-def get_genome_bioseq(seq):
+def get_genome_id_from_bioseq(seq):
     genome = seq.description.split()[1]
     return genome
 

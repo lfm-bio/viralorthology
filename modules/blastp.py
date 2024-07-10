@@ -5,7 +5,7 @@ from modules.misc import remove_from_prot_db
 from modules.misc import get_nseqs
 from modules.misc import get_n_genomes
 from modules.misc import get_ordered_files
-from modules.misc import get_genome_bioseq
+from modules.misc import get_genome_id_from_bioseq
 from modules.misc import get_blastp_hits
 from modules.misc import get_file_list
 from modules.misc import add_bioseq_to_fasta
@@ -21,11 +21,11 @@ def make_db_protsingroup():
     fastas = get_ordered_files(fastas)
     n_genomes = get_n_genomes()
     with open('protDB_ingroup.fasta', 'w', encoding='utf-8') as prot_db_ingroup:
-        for group in fastas:
-            n_genes = get_nseqs(group)
+        for fasta in fastas:
+            n_genes = get_nseqs(fasta)
             if n_genes < n_genomes: #only adds prots from groups that are not full
-                for seq in SeqIO.parse(group, 'fasta'):
-                    prot_db_ingroup.write(f'>{group}\n{seq.seq}\n')
+                for seq in SeqIO.parse(fasta, 'fasta'):
+                    prot_db_ingroup.write(f'>{fasta}\n{seq.seq}\n')
     commands.makeblastdb_prot('protDB_ingroup.fasta')
 
 def run_read_blastp(params):
@@ -54,13 +54,13 @@ def add_seqs(hits_all):
                     os.remove(fasta.replace('.fasta', '.muscle'))
     return prots_to_remove
 
-def submain(params, protDB):
-    protDB = f'../{protDB}'
-    prot_db_nseqs = get_nseqs(protDB) #just to calculate the % of the process
+def submain(params, prot_db_name):
+    prot_db = f'../{prot_db_name}'
+    prot_db_nseqs = get_nseqs(prot_db) #just to calculate the % of the process
     hits_all = {}
-    for n, query in enumerate(SeqIO.parse(protDB, 'fasta')):
+    for n, query in enumerate(SeqIO.parse(prot_db, 'fasta')):
         print(f'\r{round((n+1)/prot_db_nseqs*100, 1)}% - Blasting {query.id}', end='')
-        query_genome = get_genome_bioseq(query)
+        query_genome = get_genome_id_from_bioseq(query)
         if query_genome not in hits_all:
             hits_all[query_genome] = {} #dict[genome] = dict[fasta] = (evalue, query)
         SeqIO.write(query, 'seq.query', 'fasta')
@@ -71,10 +71,10 @@ def submain(params, protDB):
                 continue
             hits_all[query_genome][fasta] = (evalue, query)
     prots_to_remove = add_seqs(hits_all)
-    remove_from_prot_db(prots_to_remove, protDB)
+    remove_from_prot_db(prots_to_remove, prot_db)
     print() # final \n
 
-def main(prot_db, params = '-word_size 2'):
+def main(prot_db, params = ''):
     if '-word_size' not in params:
         params += ' -word_size 2'
 

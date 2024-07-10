@@ -5,7 +5,8 @@ from Bio import SeqIO
 from modules.misc import get_file_list
 from modules.misc import get_unique_gene_bioseq_by_id
 from modules.misc import delete_tmp_files
-from modules.commands import blastp, makeblastdb_prot
+from modules.commands import blastp
+from modules.commands import makeblastdb_prot
 from modules.clean_protDB import cleanDB as clean_protDB
 
 def get_mid_pos(line):
