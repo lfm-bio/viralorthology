@@ -1,7 +1,7 @@
 import os
 from Bio import SeqIO
 from tqdm import tqdm
-from modules.misc import clean_protDB
+from modules.misc import remove_from_prot_db
 from modules.misc import get_genomes_fasta
 from modules.misc import get_n_genomes
 from modules.misc import get_nseqs
@@ -41,13 +41,15 @@ def get_new_genes(fasta):
     OUT: list of genes to add to the orthology group
     checks theres not another gene from the same genome in that orthology group
     '''
+
+
     hits = get_hits_hmmsearch(fasta) #dict[genome] = gene
     genomes_fasta = get_genomes_fasta(fasta)
     new_genes = [hit for genome, hit in hits.items() if genome not in genomes_fasta]
 
     return new_genes
 
-def add_new_genes(fasta, new_genes):
+def add_new_genes_to_fasta(fasta, new_genes):
     with open(fasta, 'a', encoding='utf-8') as fasta_handle:
         for gene in SeqIO.parse('../protDB.db', 'fasta'):
             if gene.id in new_genes:
@@ -72,8 +74,8 @@ def hmm(search_params):
             align_build_search(fasta, search_params)
             new_genes = get_new_genes(fasta)
             if new_genes:
-                add_new_genes(fasta, new_genes)
-                clean_protDB(new_genes, prot_db_path)
+                add_new_genes_to_fasta(fasta, new_genes)
+                remove_from_prot_db(new_genes, prot_db_path)
                 os.remove(fasta.replace('.fasta', '.muscle')) #so it has to align the fasta again the next iteration
             else: #no new proteins found
                 break

@@ -100,8 +100,8 @@ def check_ortology_group(query_genome, fasta): # this is ugly
     return True
 
 def add_bioseq_to_fasta(bioseq, fasta):
-    with open(fasta, 'a', encoding='utf-8') as fasta:
-        fasta.write(bioseq.format('fasta'))
+    with open(fasta, 'a', encoding='utf-8') as fasta_handle:
+        fasta_handle.write(bioseq.format('fasta'))
 
 def get_blastp_hits():
     '''
@@ -150,31 +150,22 @@ def search_with_hmm(fasta, db_path, params):
     search_hmm = fasta.replace('.fasta', '.hmmsearch')
     commands.search_hmm(search_hmm, params, hmm, db_path)
 
-# def get_bioseqs(fasta):
-#     bioseqs = list(SeqIO.parse(fasta, 'fasta'))
-#     return bioseqs
-
-# def sort_bioseqs_b_to_s(bioseqs):
-#     bioseqs.sort(key=lambda seq: len(seq.seq), reverse=True)
-#     return bioseqs
-
 def get_file_list(file_ext = '.fasta'):
     files = [xfile for xfile in os.listdir(os.curdir) if xfile.endswith(file_ext)]
     files.sort()
     return files
 
-def clean_protDB(prots_to_remove, protDB_path):
+def remove_from_prot_db(prots_to_remove, prot_db_path):
     '''
     removes genes added to a orthology group from protDB
     '''
-    tmp_name = protDB_path + '_tmp'
-    with open(tmp_name, 'w', encoding='utf-8') as new_protDB:
-        for gene in SeqIO.parse(protDB_path, 'fasta'):
+    with open('tmp', 'w', encoding='utf-8') as new_prot_db:
+        for gene in SeqIO.parse(prot_db_path, 'fasta'):
             if gene.id not in prots_to_remove:
-                new_protDB.write(gene.format('fasta'))
+                new_prot_db.write(gene.format('fasta'))
 
-    os.remove(protDB_path)
-    os.rename(tmp_name, protDB_path)
+    os.remove(prot_db_path)
+    os.rename('tmp', prot_db_path)
 
 def get_nseqs(fasta):
     '''

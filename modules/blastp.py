@@ -1,7 +1,7 @@
 import os
 from Bio import SeqIO
 from modules import commands
-from modules.misc import clean_protDB
+from modules.misc import remove_from_prot_db
 from modules.misc import get_nseqs
 from modules.misc import get_n_genomes
 from modules.misc import get_ordered_files
@@ -71,7 +71,7 @@ def submain(params, protDB):
                 continue
             hits_all[query_genome][fasta] = (evalue, query)
     prots_to_remove = add_seqs(hits_all)
-    clean_protDB(prots_to_remove, protDB)
+    remove_from_prot_db(prots_to_remove, protDB)
     print() # final \n
 
 def main(prot_db, params = '-word_size 2'):
