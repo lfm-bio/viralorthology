@@ -14,12 +14,12 @@ from modules.filter_genomes import main as filter_similar_genomes
 from modules.HMM_clean import main as HMM_clean
 from modules.HMMVSHMM import main as HMMvsHMM
 from modules.merge_groups import main as merge_groups
-from modules.prepare_second_round import main as prepare_second_round
 from modules.synteny import main as synteny
-from modules.check_filtered_genomes import main as check_filtered_genomes
 from modules.download_seqs import main as download_seqs
 from modules.check_dependencies import main as check_dependencies
 from modules.kimura import main as kimura
+from modules.misc import prepare_second_round
+from modules.misc import check_filtered_genomes
 from modules.misc import merge_protDBs
 from modules.misc import delete_tmp_files_final
 from modules.misc import get_args
@@ -63,7 +63,6 @@ def main():
             HMM_clean()
             HMMvsHMM()
             clean_prot_db()
-
         HMM(args.HMMsearch)
         blastp('protDB.db', args.blastp)
         blastp('protDB_OF.db', args.blastp)

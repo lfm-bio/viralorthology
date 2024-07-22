@@ -9,56 +9,34 @@ from modules.commands import blastp
 from modules.commands import makeblastdb_prot
 from modules.clean_protDB import cleanDB as clean_protDB
 
-def get_mid_pos(line):
-    mid_pos = line[line.find('[location=')+10:line.find('[', line.find('[location=')+1)-2].strip('complement()')
-    if line.startswith('>ORFINDER'):
-        mid_pos = line[line.find('[location=')+10:line.find(']', line.find('[location=')+1)].strip('complement()')
-    if mid_pos.startswith('join'):
-        mid_pos = mid_pos[mid_pos.find('(')+1:].split(',')[0]
-    mid_pos = mid_pos.replace('>', '').replace('<', '')
-    mid_pos = [int(pos) for pos in mid_pos.split('..')]
-    mid_pos = int(statistics.mean(mid_pos))
-    return mid_pos
-
-def get_windows(genes_in_order_onegenome, win_len):
-    windows = []
-    first, last = 0, win_len
-
-    while True:
-        win = genes_in_order_onegenome[first:last]
-        if len(win) < win_len:
-            break
-        windows.append(tuple(win))
-        first += 1
-        last += 1
-
-    return windows
-
-def blastp_with_orthology_group(conserved_window, gene_found, synteny_window, ortho_groups):
-
-    def blastp_hit():
-        with open('blastp.results', encoding='utf-8') as results:
-            for line in results:
-                if '***** No hits found *****' in line:
-                    return False
-        return True
-
-    group_db = [group for group in conserved_window if group != gene_found][0] + '.fasta'
-    makeblastdb_prot(group_db)
-    querys = [gene for gene in synteny_window if gene not in ortho_groups]
-    for query in querys:
-        seq = get_unique_gene_bioseq_by_id(query)
-        SeqIO.write(seq, 'query.fasta', 'fasta')
-        blastp('query.fasta', group_db)
-        if blastp_hit():
-            with open(group_db, 'a', encoding='utf-8') as fasta:
-                fasta.write(seq.format('fasta'))
-        delete_tmp_files(['.pdb', '.phr', '.pin', '.pot', '.psq', '.ptf', '.pto'])
-        os.remove('blastp.results')
-        os.remove('query.fasta')
-        clean_protDB()
-
 def check_synteny(conserved_windows, genes_in_order):
+
+    def blastp_with_orthology_group(conserved_window, gene_found, synteny_window, ortho_groups):
+
+        def blastp_hit():
+            with open('blastp.results', encoding='utf-8') as results:
+                for line in results:
+                    if '***** No hits found *****' in line:
+                        return False
+            return True
+
+        group_db = [group for group in conserved_window if group != gene_found][0] + '.fasta'
+        makeblastdb_prot(group_db)
+        querys = [gene for gene in synteny_window if gene not in ortho_groups]
+        for query in querys:
+            seq = get_unique_gene_bioseq_by_id(query)
+            if not seq: # seq added to another group by synteny
+                continue
+            SeqIO.write(seq, 'query.fasta', 'fasta')
+            blastp('query.fasta', group_db)
+            if blastp_hit():
+                with open(group_db, 'a', encoding='utf-8') as fasta:
+                    fasta.write(seq.format('fasta'))
+            delete_tmp_files(['.pdb', '.phr', '.pin', '.pot', '.psq', '.ptf', '.pto'])
+            os.remove('blastp.results')
+            os.remove('query.fasta')
+            clean_protDB()
+
     ortho_groups = get_file_list()
     ortho_groups = [fasta.replace('.fasta', '') for fasta in ortho_groups]
     for conserved_window in conserved_windows:
@@ -100,15 +78,22 @@ def get_conserved_windows(windows_per_genome):
 
     return sorted(conserved_windows)
 
-def get_synteny(genes_in_order):
-    windows_per_genome = {genome : get_windows(genes_in_order[genome], 2) for genome in genes_in_order}
-    conserved_windows = get_conserved_windows(windows_per_genome)
-    check_synteny(conserved_windows, genes_in_order)
-
 def get_genes(fasta, genes_no_order):
     '''
     OUT: dict[genome] = [(mid_pos, gene), (mid_pos, gene)...] NO ORDER
     '''
+
+    def get_mid_pos(line):
+        mid_pos = line[line.find('[location=')+10:line.find('[', line.find('[location=')+1)-2].strip('complement()')
+        if line.startswith('>ORFINDER'):
+            mid_pos = line[line.find('[location=')+10:line.find(']', line.find('[location=')+1)].strip('complement()')
+        if mid_pos.startswith('join'):
+            mid_pos = mid_pos[mid_pos.find('(')+1:].split(',')[0]
+        mid_pos = mid_pos.replace('>', '').replace('<', '')
+        mid_pos = [int(pos) for pos in mid_pos.split('..')]
+        mid_pos = int(statistics.mean(mid_pos))
+        return mid_pos
+
     no_order = copy.deepcopy(genes_no_order)
     gene = fasta.replace('.fasta', '')
     op_file = open(fasta, encoding='utf-8')
@@ -159,12 +144,32 @@ def get_genes_in_order():
     return genes_in_order
 
 def synteny():
+
+    def get_windows(genes_in_order_onegenome, win_len):
+        windows = []
+        first, last = 0, win_len
+
+        while True:
+            win = genes_in_order_onegenome[first:last]
+            if len(win) < win_len:
+                break
+            windows.append(tuple(win))
+            first += 1
+            last += 1
+
+        return windows
+
+    print('Synteny analysis...')
     genes_in_order = get_genes_in_order()
-    get_synteny(genes_in_order)
+    windows_per_genome = {genome : get_windows(genes_in_order[genome], 2) for genome in genes_in_order}
+    conserved_windows = get_conserved_windows(windows_per_genome)
+    check_synteny(conserved_windows, genes_in_order)
 
 def main():
     os.chdir('orthology_groups')
 
     synteny()
+
+    delete_tmp_files(['.pot', '.pin', '.psq', '.ptf', '.pto', '.phr', '.pdb'])
 
     os.chdir('..')
