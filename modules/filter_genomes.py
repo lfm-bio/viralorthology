@@ -26,13 +26,19 @@ def filter_genomes():
         commands.make_blastdb_nt(fasta)
 
     print('Filtering genomes...')
+    skip = []
     for f1 in tqdm(fastas):
+        if f1 in skip:
+            continue
         for f2 in fastas:
-            if f2 == f1:
+            if f2 == f1 or f2 in skip:
                 continue
             commands.blast_filter_genomes(f1, f2)
             if genomes_are_similar() and f2 in fastas:
-                fastas.pop(fastas.index(f2))
+                # fastas.pop(fastas.index(f2))
+                skip.append(f2)
+
+    fastas = [fasta for fasta in fastas if fasta not in skip]
 
     return fastas
 

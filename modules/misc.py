@@ -339,6 +339,5 @@ def prepare_second_round():
             os.chdir('..')
 
     delete_move_files()
-    os.rename('n_seqs_groups.csv', 'first-round-n_seqs_groups.csv')
     os.rename('protDB_OF.db', 'first-round-protDB_OF.db')
     os.rename('protDB.db', 'first-round-protDB.db')
