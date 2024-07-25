@@ -45,7 +45,6 @@ def main():
     check_files()
     args = get_args()
 
-    #HERE COMES THE PIPELINE
     first_round = True
     while True:
         if first_round:

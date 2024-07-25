@@ -5,6 +5,7 @@ from Bio import SeqIO
 from modules.misc import get_file_list
 from modules.misc import get_unique_gene_bioseq_by_id
 from modules.misc import delete_tmp_files
+from modules.misc import check_ortology_group
 from modules.commands import blastp
 from modules.commands import makeblastdb_prot
 from modules.clean_protDB import cleanDB as clean_protDB
@@ -25,17 +26,17 @@ def check_synteny(conserved_windows, genes_in_order):
         querys = [gene for gene in synteny_window if gene not in ortho_groups]
         for query in querys:
             seq = get_unique_gene_bioseq_by_id(query)
-            if not seq: # seq added to another group by synteny
-                continue
-            SeqIO.write(seq, 'query.fasta', 'fasta')
-            blastp('query.fasta', group_db)
-            if blastp_hit():
-                with open(group_db, 'a', encoding='utf-8') as fasta:
-                    fasta.write(seq.format('fasta'))
-            delete_tmp_files(['.pdb', '.phr', '.pin', '.pot', '.psq', '.ptf', '.pto'])
-            os.remove('blastp.results')
-            os.remove('query.fasta')
-            clean_protDB()
+            genome_id = seq.description.strip().split()[1]
+            if check_ortology_group(genome_id, group_db) and seq:
+                SeqIO.write(seq, 'query.fasta', 'fasta')
+                blastp('query.fasta', group_db)
+                if blastp_hit():
+                    with open(group_db, 'a', encoding='utf-8') as fasta:
+                        fasta.write(seq.format('fasta'))
+                delete_tmp_files(['.pdb', '.phr', '.pin', '.pot', '.psq', '.ptf', '.pto'])
+                os.remove('blastp.results')
+                os.remove('query.fasta')
+                clean_protDB()
 
     ortho_groups = get_file_list()
     ortho_groups = [fasta.replace('.fasta', '') for fasta in ortho_groups]
@@ -61,15 +62,12 @@ def check_synteny(conserved_windows, genes_in_order):
                 if ok:
                     blastp_with_orthology_group(conserved_window, gene_found, synteny_window, ortho_groups)
 
-def get_conserved_windows(windows_per_genome):
+def get_conserved_windows(all_windows, n_genomes):
     output = open('../synteny.txt', 'w', encoding='utf-8')
     output.write('conservation synteny_window\n')
-    windows = []
-    for genome in windows_per_genome:
-        windows += windows_per_genome[genome]
     conserved_windows = []
-    for window in set(windows):
-        perc = round(windows.count(window) / len(windows_per_genome) * 100, 2)
+    for window in set(all_windows):
+        perc = round(all_windows.count(window) / n_genomes * 100, 2)
         if 50 < perc < 100: #how many genome have that window? (if == 100% I wont find new genes)
             output.write(f'{perc}% {(" | ").join(window)}\n')
             conserved_windows.append(window)
@@ -145,7 +143,8 @@ def get_genes_in_order():
 
 def synteny():
 
-    def get_windows(genes_in_order_onegenome, win_len):
+    def get_windows(genes_in_order_onegenome):
+        win_len = 2
         windows = []
         first, last = 0, win_len
 
@@ -161,15 +160,17 @@ def synteny():
 
     print('Synteny analysis...')
     genes_in_order = get_genes_in_order()
-    windows_per_genome = {genome : get_windows(genes_in_order[genome], 2) for genome in genes_in_order}
-    conserved_windows = get_conserved_windows(windows_per_genome)
+    n_genomes = len(genes_in_order)
+    all_synteny_windows = []
+    for ordered_genes in genes_in_order.values():
+        all_synteny_windows += get_windows(ordered_genes)
+    conserved_windows = get_conserved_windows(all_synteny_windows, n_genomes)
     check_synteny(conserved_windows, genes_in_order)
 
 def main():
     os.chdir('orthology_groups')
 
     synteny()
-
     delete_tmp_files(['.pot', '.pin', '.psq', '.ptf', '.pto', '.phr', '.pdb'])
 
     os.chdir('..')
