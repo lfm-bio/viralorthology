@@ -26,6 +26,8 @@ def check_synteny(conserved_windows, genes_in_order):
         querys = [gene for gene in synteny_window if gene not in ortho_groups]
         for query in querys:
             seq = get_unique_gene_bioseq_by_id(query)
+            if seq is None:
+                continue
             genome_id = seq.description.strip().split()[1]
             if check_ortology_group(genome_id, group_db) and seq:
                 SeqIO.write(seq, 'query.fasta', 'fasta')
