@@ -10,6 +10,8 @@ def get_fasta_anotations(old_group):
                 if '[protein=' in line:
                     anotation = line[line.find('[protein=')+9:line.find(']', line.find('[protein=')+9)]
                     anotation = anotation.replace(' ', '-').replace('/', '-').replace('(', '_').replace(')', '_').lower()
+                    if 'unknown' in anotation:
+                        continue
                     if anotation in anotations:
                         anotations[anotation] += 1
                     else:
