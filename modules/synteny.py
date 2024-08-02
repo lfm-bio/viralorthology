@@ -33,6 +33,8 @@ def check_synteny(conserved_windows, genes_in_order):
                 SeqIO.write(seq, 'query.fasta', 'fasta')
                 blastp('query.fasta', group_db)
                 if blastp_hit():
+                    with open('../synteny.txt', 'a', encoding='utf-8') as txt:
+                        txt.write(f'\n{group_db} / {seq.id} / {conserved_window}\n')
                     with open(group_db, 'a', encoding='utf-8') as fasta:
                         fasta.write(seq.format('fasta'))
                 delete_tmp_files(['.pdb', '.phr', '.pin', '.pot', '.psq', '.ptf', '.pto'])
