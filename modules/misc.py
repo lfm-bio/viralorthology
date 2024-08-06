@@ -155,6 +155,12 @@ def get_file_list(file_ext = '.fasta'):
     files.sort()
     return files
 
+def get_all_genome_ids():
+    genome_ids = []
+    for seq in SeqIO.parse('../genomes.fasta', 'fasta'):
+        genome_ids.append(seq.id[:seq.id.rfind('.')])
+    return genome_ids
+
 def remove_from_prot_db(prots_to_remove, prot_db_path):
     '''
     removes genes added to a orthology group from protDB

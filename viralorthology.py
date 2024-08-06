@@ -18,6 +18,7 @@ from modules.synteny import main as synteny
 from modules.download_seqs import main as download_seqs
 from modules.check_dependencies import main as check_dependencies
 from modules.kimura import main as kimura
+from modules.write_report import main as write_report
 from modules.debug import write_n_seqs_per_group
 from modules.misc import prepare_second_round
 from modules.misc import check_filtered_genomes
@@ -92,6 +93,7 @@ def main():
     write_n_seqs_per_group('Synteny')
     delete_tmp_files_final()
     delete_final_files()
+    write_report()
     write_log(args, start)
 
 if __name__ == '__main__':
